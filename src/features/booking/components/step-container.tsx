@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 /** Consistent outer padding/max-width for every step view. `wide` is for
- *  card-grid steps (dentist, treatment); the default suits form-like steps. */
+ *  card-grid steps (practitioner, treatment); the default suits form-like steps. */
 export function StepContainer({
   wide = false,
   className,

@@ -149,7 +149,7 @@ export default function DashboardPage() {
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <QuickActionButton href="/appointments" label="New appointment" icon={CalendarPlusIcon} />
           <QuickActionButton href="/patients" label="Add patient" icon={UserPlusIcon} />
-          <QuickActionButton href="/dentists" label="Manage dentists" icon={StethoscopeIcon} />
+          <QuickActionButton href="/practitioners" label="Manage practitioners" icon={StethoscopeIcon} />
           <QuickActionButton href="/working-hours" label="Working hours" icon={ClockIcon} />
         </div>
       </div>

@@ -1,7 +1,7 @@
 "use server";
 
 import { createAdminClient } from "../shared/supabase-admin";
-import type { AddBreakInput, DentistBreak, SaveWorkingDayInput, WorkingDay } from "./types";
+import type { AddBreakInput, PractitionerBreak, SaveWorkingDayInput, WorkingDay } from "./types";
 
 interface WorkingHoursRow {
   day_of_week: number;
@@ -22,12 +22,12 @@ function toTimeString(pgTime: string | null): string | null {
   return pgTime ? pgTime.slice(0, 5) : null;
 }
 
-export async function getWorkingHours(dentistId: string): Promise<WorkingDay[]> {
+export async function getWorkingHours(practitionerId: string): Promise<WorkingDay[]> {
   const supabase = createAdminClient();
   const { data, error } = await supabase
-    .from("dentist_working_hours")
+    .from("practitioner_working_hours")
     .select("day_of_week, is_working, start_time, end_time")
-    .eq("dentist_id", dentistId);
+    .eq("practitioner_id", practitionerId);
   if (error) throw new Error(`getWorkingHours failed: ${error.message}`);
 
   const byDay = new Map((data as WorkingHoursRow[] | null ?? []).map((r) => [r.day_of_week, r]));
@@ -44,26 +44,26 @@ export async function getWorkingHours(dentistId: string): Promise<WorkingDay[]> 
 
 export async function saveWorkingDay(input: SaveWorkingDayInput): Promise<void> {
   const supabase = createAdminClient();
-  const { error } = await supabase.from("dentist_working_hours").upsert(
+  const { error } = await supabase.from("practitioner_working_hours").upsert(
     {
-      dentist_id: input.dentistId,
+      practitioner_id: input.practitionerId,
       practice_id: input.practiceId,
       day_of_week: input.dayOfWeek,
       is_working: input.isWorking,
       start_time: input.isWorking ? input.startTime : null,
       end_time: input.isWorking ? input.endTime : null,
     },
-    { onConflict: "dentist_id,day_of_week" }
+    { onConflict: "practitioner_id,day_of_week" }
   );
   if (error) throw new Error(`saveWorkingDay failed: ${error.message}`);
 }
 
-export async function getBreaks(dentistId: string): Promise<DentistBreak[]> {
+export async function getBreaks(practitionerId: string): Promise<PractitionerBreak[]> {
   const supabase = createAdminClient();
   const { data, error } = await supabase
-    .from("dentist_breaks")
+    .from("practitioner_breaks")
     .select("id, day_of_week, start_time, end_time, description")
-    .eq("dentist_id", dentistId)
+    .eq("practitioner_id", practitionerId)
     .order("day_of_week");
   if (error) throw new Error(`getBreaks failed: ${error.message}`);
   return (data as BreakRow[] | null ?? []).map((row) => ({
@@ -75,12 +75,12 @@ export async function getBreaks(dentistId: string): Promise<DentistBreak[]> {
   }));
 }
 
-export async function addBreak(input: AddBreakInput): Promise<DentistBreak> {
+export async function addBreak(input: AddBreakInput): Promise<PractitionerBreak> {
   const supabase = createAdminClient();
   const { data, error } = await supabase
-    .from("dentist_breaks")
+    .from("practitioner_breaks")
     .insert({
-      dentist_id: input.dentistId,
+      practitioner_id: input.practitionerId,
       practice_id: input.practiceId,
       day_of_week: input.dayOfWeek,
       start_time: input.startTime,
@@ -101,6 +101,6 @@ export async function addBreak(input: AddBreakInput): Promise<DentistBreak> {
 
 export async function deleteBreak(breakId: string): Promise<void> {
   const supabase = createAdminClient();
-  const { error } = await supabase.from("dentist_breaks").delete().eq("id", breakId);
+  const { error } = await supabase.from("practitioner_breaks").delete().eq("id", breakId);
   if (error) throw new Error(`deleteBreak failed: ${error.message}`);
 }

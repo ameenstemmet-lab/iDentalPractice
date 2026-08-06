@@ -10,9 +10,9 @@ interface ReceptionUiState {
 
   calendarView: CalendarViewMode;
   setCalendarView: (view: CalendarViewMode) => void;
-  calendarSelectedDentistIds: string[];
-  toggleCalendarDentist: (dentistId: string) => void;
-  resetCalendarDentistFilter: () => void;
+  calendarSelectedPractitionerIds: string[];
+  toggleCalendarPractitioner: (practitionerId: string) => void;
+  resetCalendarPractitionerFilter: () => void;
 }
 
 /**
@@ -29,14 +29,14 @@ export const useReceptionUiStore = create<ReceptionUiState>()(
 
       calendarView: "week",
       setCalendarView: (view) => set({ calendarView: view }),
-      calendarSelectedDentistIds: [],
-      toggleCalendarDentist: (dentistId) =>
+      calendarSelectedPractitionerIds: [],
+      toggleCalendarPractitioner: (practitionerId) =>
         set((s) => ({
-          calendarSelectedDentistIds: s.calendarSelectedDentistIds.includes(dentistId)
-            ? s.calendarSelectedDentistIds.filter((id) => id !== dentistId)
-            : [...s.calendarSelectedDentistIds, dentistId],
+          calendarSelectedPractitionerIds: s.calendarSelectedPractitionerIds.includes(practitionerId)
+            ? s.calendarSelectedPractitionerIds.filter((id) => id !== practitionerId)
+            : [...s.calendarSelectedPractitionerIds, practitionerId],
         })),
-      resetCalendarDentistFilter: () => set({ calendarSelectedDentistIds: [] }),
+      resetCalendarPractitionerFilter: () => set({ calendarSelectedPractitionerIds: [] }),
     }),
     { name: "idp-reception-ui" }
   )

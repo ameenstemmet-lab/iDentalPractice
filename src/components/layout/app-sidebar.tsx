@@ -38,7 +38,7 @@ const overviewItems = [
 
 const practiceItems = [
   { title: "Patients", href: "/patients", icon: UsersIcon },
-  { title: "Dentists", href: "/dentists", icon: StethoscopeIcon },
+  { title: "Practitioners", href: "/practitioners", icon: StethoscopeIcon },
   { title: "Treatments", href: "/treatments", icon: UserCogIcon },
 ] as const;
 

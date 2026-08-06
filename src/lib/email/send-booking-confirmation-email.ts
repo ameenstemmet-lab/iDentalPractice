@@ -5,7 +5,7 @@ export interface BookingConfirmationEmailInput {
   to: string;
   patientFirstName: string;
   practiceName: string;
-  dentistName: string;
+  practitionerName: string;
   treatmentName: string;
   dateLabel: string;
   timeLabel: string;
@@ -21,7 +21,7 @@ function renderHtml(input: BookingConfirmationEmailInput): string {
         Your appointment with ${input.practiceName} has been confirmed. We look forward to seeing you.
       </p>
       <table style="width: 100%; margin-top: 20px; border-collapse: collapse; font-size: 14px;">
-        <tr><td style="padding: 8px 0; color: #6b7280;">Dentist</td><td style="padding: 8px 0; text-align: right; font-weight: 600;">${input.dentistName}</td></tr>
+        <tr><td style="padding: 8px 0; color: #6b7280;">Practitioner</td><td style="padding: 8px 0; text-align: right; font-weight: 600;">${input.practitionerName}</td></tr>
         <tr style="border-top: 1px solid #e5e7eb;"><td style="padding: 8px 0; color: #6b7280;">Treatment</td><td style="padding: 8px 0; text-align: right; font-weight: 600;">${input.treatmentName}</td></tr>
         <tr style="border-top: 1px solid #e5e7eb;"><td style="padding: 8px 0; color: #6b7280;">Date &amp; time</td><td style="padding: 8px 0; text-align: right; font-weight: 600;">${input.dateLabel} at ${input.timeLabel}</td></tr>
       </table>

@@ -14,10 +14,10 @@ const SETTINGS_PATH = "/settings/integrations/google-calendar";
 
 export async function getConnectionStatusAction(
   practiceId: string,
-  dentistId: string | null
+  practitionerId: string | null
 ): Promise<CalendarConnection | null> {
   const { repository } = createGoogleCalendarServices();
-  return repository.getConnectionForDentist(practiceId, dentistId);
+  return repository.getConnectionForPractitioner(practiceId, practitionerId);
 }
 
 export async function listPracticeConnectionsAction(practiceId: string): Promise<CalendarConnection[]> {

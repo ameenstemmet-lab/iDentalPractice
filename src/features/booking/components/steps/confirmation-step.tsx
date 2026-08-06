@@ -13,17 +13,17 @@ import { useBookingSelection } from "../../hooks/use-booking-selection";
 import { useBookingStore } from "../../store/booking-store";
 
 export function ConfirmationStep() {
-  const { dentist, treatment, isLoading } = useBookingSelection();
+  const { practitioner, treatment, isLoading } = useBookingSelection();
   const date = useBookingStore((s) => s.date);
   const time = useBookingStore((s) => s.time);
   const patient = useBookingStore((s) => s.patient);
   const reservation = useBookingStore((s) => s.reservation);
   const reset = useBookingStore((s) => s.reset);
 
-  const isStale = !isLoading && reservation && (!dentist || !treatment);
+  const isStale = !isLoading && reservation && (!practitioner || !treatment);
 
   React.useEffect(() => {
-    // A persisted reservation whose dentist/treatment no longer resolve is
+    // A persisted reservation whose practitioner/treatment no longer resolve is
     // a session left over from before the catalog changed underneath it
     // (e.g. real data replacing mock data) — recover by starting fresh
     // instead of dead-ending on a permanently blank confirmation screen.
@@ -32,7 +32,7 @@ export function ConfirmationStep() {
 
   if (isLoading) return <LoadingState label="Loading your confirmation…" />;
   if (isStale) return null;
-  if (!dentist || !treatment || !date || !time || !reservation) return null;
+  if (!practitioner || !treatment || !date || !time || !reservation) return null;
 
   function bookAnother() {
     reset();
@@ -62,7 +62,7 @@ export function ConfirmationStep() {
       </div>
 
       <div className="mt-8 w-full text-left">
-        <BookingSummary dentist={dentist} treatment={treatment} date={date} time={time} />
+        <BookingSummary practitioner={practitioner} treatment={treatment} date={date} time={time} />
       </div>
 
       <div className="mt-8 flex w-full flex-col gap-2.5 sm:flex-row sm:justify-center">

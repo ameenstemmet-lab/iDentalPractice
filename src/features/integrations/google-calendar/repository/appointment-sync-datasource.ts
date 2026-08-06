@@ -19,7 +19,7 @@ export interface AppointmentSyncDataSource {
 interface AppointmentJoinRow {
   id: string;
   practice_id: string;
-  dentist_id: string;
+  practitioner_id: string;
   appointment_date: string;
   start_time: string;
   end_time: string;
@@ -37,7 +37,7 @@ export class SupabaseAppointmentSyncDataSource implements AppointmentSyncDataSou
     const { data, error } = await this.client
       .from("appointments")
       .select(
-        "id, practice_id, dentist_id, appointment_date, start_time, end_time, notes, google_calendar_event_id, patients(first_name, last_name), treatment_types(treatment_name), practices(timezone)"
+        "id, practice_id, practitioner_id, appointment_date, start_time, end_time, notes, google_calendar_event_id, patients(first_name, last_name), treatment_types(treatment_name), practices(timezone)"
       )
       .eq("id", appointmentId)
       .maybeSingle<AppointmentJoinRow>();
@@ -52,7 +52,7 @@ export class SupabaseAppointmentSyncDataSource implements AppointmentSyncDataSou
     return {
       appointmentId: data.id,
       practiceId: data.practice_id,
-      dentistId: data.dentist_id,
+      practitionerId: data.practitioner_id,
       summary: `${treatmentName} — ${patientName}`,
       description: data.notes ?? undefined,
       // appointment_date/start_time/end_time are practice-local wall-clock

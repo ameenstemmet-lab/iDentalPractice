@@ -5,7 +5,7 @@ function resetStore() {
   useReceptionUiStore.setState({
     sidebarCollapsed: false,
     calendarView: "week",
-    calendarSelectedDentistIds: [],
+    calendarSelectedPractitionerIds: [],
   });
 }
 
@@ -37,21 +37,21 @@ describe("useReceptionUiStore — calendar view", () => {
   });
 });
 
-describe("useReceptionUiStore — calendar dentist filter", () => {
-  it("toggles a dentist into and out of the filter", () => {
-    useReceptionUiStore.getState().toggleCalendarDentist("dentist-1");
-    expect(useReceptionUiStore.getState().calendarSelectedDentistIds).toEqual(["dentist-1"]);
+describe("useReceptionUiStore — calendar practitioner filter", () => {
+  it("toggles a practitioner into and out of the filter", () => {
+    useReceptionUiStore.getState().toggleCalendarPractitioner("practitioner-1");
+    expect(useReceptionUiStore.getState().calendarSelectedPractitionerIds).toEqual(["practitioner-1"]);
 
-    useReceptionUiStore.getState().toggleCalendarDentist("dentist-2");
-    expect(useReceptionUiStore.getState().calendarSelectedDentistIds).toEqual(["dentist-1", "dentist-2"]);
+    useReceptionUiStore.getState().toggleCalendarPractitioner("practitioner-2");
+    expect(useReceptionUiStore.getState().calendarSelectedPractitionerIds).toEqual(["practitioner-1", "practitioner-2"]);
 
-    useReceptionUiStore.getState().toggleCalendarDentist("dentist-1");
-    expect(useReceptionUiStore.getState().calendarSelectedDentistIds).toEqual(["dentist-2"]);
+    useReceptionUiStore.getState().toggleCalendarPractitioner("practitioner-1");
+    expect(useReceptionUiStore.getState().calendarSelectedPractitionerIds).toEqual(["practitioner-2"]);
   });
 
   it("resets the filter", () => {
-    useReceptionUiStore.getState().toggleCalendarDentist("dentist-1");
-    useReceptionUiStore.getState().resetCalendarDentistFilter();
-    expect(useReceptionUiStore.getState().calendarSelectedDentistIds).toEqual([]);
+    useReceptionUiStore.getState().toggleCalendarPractitioner("practitioner-1");
+    useReceptionUiStore.getState().resetCalendarPractitionerFilter();
+    expect(useReceptionUiStore.getState().calendarSelectedPractitionerIds).toEqual([]);
   });
 });

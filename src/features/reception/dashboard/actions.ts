@@ -71,7 +71,7 @@ export async function getRecentActivity(practiceId: string, limit = 8): Promise<
   const { data, error } = await supabase
     .from("appointments")
     .select(
-      "id, appointment_date, start_time, status, created_at, patients(first_name, last_name), dentists(first_name, last_name), treatment_types(treatment_name)"
+      "id, appointment_date, start_time, status, created_at, patients(first_name, last_name), practitioners(first_name, last_name), treatment_types(treatment_name)"
     )
     .eq("practice_id", practiceId)
     .order("created_at", { ascending: false })
@@ -88,13 +88,13 @@ export async function getRecentActivity(practiceId: string, limit = 8): Promise<
         status: AppointmentStatus;
         created_at: string;
         patients: { first_name: string; last_name: string } | null;
-        dentists: { first_name: string; last_name: string } | null;
+        practitioners: { first_name: string; last_name: string } | null;
         treatment_types: { treatment_name: string } | null;
       }>
     ).map((row) => ({
     id: row.id,
     patientName: row.patients ? `${row.patients.first_name} ${row.patients.last_name}` : "—",
-    dentistName: row.dentists ? `${row.dentists.first_name} ${row.dentists.last_name}` : "—",
+    practitionerName: row.practitioners ? `${row.practitioners.first_name} ${row.practitioners.last_name}` : "—",
     treatmentName: row.treatment_types?.treatment_name ?? "—",
     appointmentDate: row.appointment_date,
     startTime: row.start_time.slice(0, 5),

@@ -7,7 +7,7 @@ export interface WorkingDay {
   endTime: string | null;
 }
 
-export interface DentistBreak {
+export interface PractitionerBreak {
   id: string;
   dayOfWeek: number;
   startTime: string;
@@ -16,7 +16,7 @@ export interface DentistBreak {
 }
 
 export interface SaveWorkingDayInput {
-  dentistId: string;
+  practitionerId: string;
   practiceId: string;
   dayOfWeek: number;
   isWorking: boolean;
@@ -25,7 +25,7 @@ export interface SaveWorkingDayInput {
 }
 
 export interface AddBreakInput {
-  dentistId: string;
+  practitionerId: string;
   practiceId: string;
   dayOfWeek: number;
   startTime: string;

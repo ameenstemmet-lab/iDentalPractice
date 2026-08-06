@@ -5,7 +5,7 @@ import { fetchDayData } from "./context-builder";
 import { generateDailySlots as generateDailySlotsEngine } from "../engine/slot-generator";
 
 export interface GenerateSlotsParams {
-  dentistId: string;
+  practitionerId: string;
   date: ISODate;
   timezone: TimeZone;
   durationMinutes: number;
@@ -19,7 +19,7 @@ interface DailyResult {
 }
 
 /**
- * Fetches everything needed for one dentist/day and generates the slot
+ * Fetches everything needed for one practitioner/day and generates the slot
  * grid. This is the I/O-performing counterpart to engine/slot-generator's
  * pure `generateDailySlots` — same name, service layer.
  */
@@ -34,13 +34,13 @@ export class TimeSlotGenerator {
     const dayData = await fetchDayData(
       this.repository,
       this.workingHoursService,
-      params.dentistId,
+      params.practitionerId,
       params.date,
       params.timezone
     );
 
     const slots = generateDailySlotsEngine({
-      dentistId: params.dentistId,
+      practitionerId: params.practitionerId,
       date: params.date,
       timezone: params.timezone,
       durationMinutes: params.durationMinutes,

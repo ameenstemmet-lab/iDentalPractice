@@ -7,7 +7,7 @@ import { BOOKING_STEPS, type BookingStep } from "../types";
 import { useBookingStore } from "../store/booking-store";
 
 const STEP_LABELS: Record<Exclude<BookingStep, "confirmation">, string> = {
-  dentist: "Dentist",
+  practitioner: "Practitioner",
   treatment: "Treatment",
   date: "Date",
   time: "Time",

@@ -2,18 +2,18 @@ import { ClockIcon, GraduationCapIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import type { Dentist } from "../types";
+import type { Practitioner } from "../types";
 
-export function DentistCard({
-  dentist,
+export function PractitionerCard({
+  practitioner,
   selected = false,
   onSelect,
 }: {
-  dentist: Dentist;
+  practitioner: Practitioner;
   selected?: boolean;
   onSelect: () => void;
 }) {
-  const initials = `${dentist.firstName[0]}${dentist.lastName[0]}`;
+  const initials = `${practitioner.firstName[0]}${practitioner.lastName[0]}`;
 
   return (
     <button
@@ -35,17 +35,19 @@ export function DentistCard({
         </span>
         <div className="min-w-0 pt-0.5">
           <p className="truncate text-sm font-semibold text-foreground">
-            {dentist.title} {dentist.firstName} {dentist.lastName}
+            {practitioner.title ? `${practitioner.title} ` : ""}
+            {practitioner.firstName} {practitioner.lastName}
           </p>
+          <p className="truncate text-xs font-medium text-primary">{practitioner.profession}</p>
           <p className="mt-0.5 flex items-start gap-1 text-xs text-muted-foreground">
             <GraduationCapIcon className="mt-0.5 size-3 shrink-0" />
-            <span>{dentist.qualification}</span>
+            <span>{practitioner.qualification}</span>
           </p>
         </div>
       </div>
 
       <div className="flex flex-wrap gap-1.5">
-        {dentist.specialInterests.map((interest) => (
+        {practitioner.specialInterests.map((interest) => (
           <Badge key={interest} variant="secondary" className="font-normal">
             {interest}
           </Badge>
@@ -53,9 +55,9 @@ export function DentistCard({
       </div>
 
       <div className="mt-auto flex w-full items-center justify-between border-t border-border pt-3 text-xs text-muted-foreground">
-        <span>{dentist.yearsOfExperience} years experience</span>
+        <span>{practitioner.yearsOfExperience} years experience</span>
         <span className="flex items-center gap-1">
-          <ClockIcon className="size-3" />~{dentist.avgConsultationDuration} min
+          <ClockIcon className="size-3" />~{practitioner.avgConsultationDuration} min
         </span>
       </div>
     </button>

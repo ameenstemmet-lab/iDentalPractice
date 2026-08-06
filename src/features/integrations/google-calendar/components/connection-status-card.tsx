@@ -17,11 +17,11 @@ import { CalendarSelector } from "./calendar-selector";
 
 export function ConnectionStatusCard({
   practiceId,
-  dentistId = null,
+  practitionerId = null,
   title = "Google Calendar",
 }: {
   practiceId: string;
-  dentistId?: string | null;
+  practitionerId?: string | null;
   title?: string;
 }) {
   const {
@@ -35,7 +35,7 @@ export function ConnectionStatusCard({
     listAvailableCalendars,
     selectCalendar,
     toggleSyncEnabled,
-  } = useGoogleCalendarConnection({ practiceId, dentistId });
+  } = useGoogleCalendarConnection({ practiceId, practitionerId });
 
   async function handleTest() {
     const result = await testConnection();

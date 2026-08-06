@@ -120,7 +120,7 @@ export default function PatientProfilePage({ params }: { params: Promise<{ id: s
                   <div>
                     <p className="text-sm font-medium text-foreground">{a.treatmentName}</p>
                     <p className="text-xs text-muted-foreground">
-                      {formatDateLong(a.appointmentDate)} · {a.startTime} · {a.dentistName}
+                      {formatDateLong(a.appointmentDate)} · {a.startTime} · {a.practitionerName}
                     </p>
                   </div>
                   <AppointmentStatusBadge status={a.status} />

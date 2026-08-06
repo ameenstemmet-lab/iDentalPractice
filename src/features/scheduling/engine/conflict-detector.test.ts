@@ -7,14 +7,14 @@ const TZ = "Africa/Johannesburg";
 const DATE = "2026-08-06"; // a Thursday
 
 const fullDayWorkingHours: WorkingHoursRecord = {
-  dentistId: "d1",
+  practitionerId: "d1",
   dayOfWeek: 4,
   isWorking: true,
   window: { startMinutes: 8 * 60, endMinutes: 17 * 60 },
 };
 
 const notWorkingHours: WorkingHoursRecord = {
-  dentistId: "d1",
+  practitionerId: "d1",
   dayOfWeek: 4,
   isWorking: false,
   window: null,
@@ -52,7 +52,7 @@ describe("detectConflicts — past time", () => {
 });
 
 describe("detectConflicts — working hours", () => {
-  it("rejects when the dentist doesn't work that day", () => {
+  it("rejects when the practitioner doesn't work that day", () => {
     const result = detectConflicts(slot(9, 10), baseContext({ workingHours: notWorkingHours }));
     expect(result).toEqual({ hasConflict: true, reason: "outside_working_hours" });
   });
@@ -74,7 +74,7 @@ describe("detectConflicts — working hours", () => {
 });
 
 describe("detectConflicts — breaks", () => {
-  const lunchBreak = { dentistId: "d1", dayOfWeek: 4 as const, window: { startMinutes: 12 * 60, endMinutes: 13 * 60 } };
+  const lunchBreak = { practitionerId: "d1", dayOfWeek: 4 as const, window: { startMinutes: 12 * 60, endMinutes: 13 * 60 } };
 
   it("rejects a slot overlapping a break", () => {
     const result = detectConflicts(slot(12, 13), baseContext({ breaks: [lunchBreak] }));
@@ -102,14 +102,14 @@ describe("detectConflicts — breaks", () => {
 
 describe("detectConflicts — blocked periods", () => {
   it("rejects a slot overlapping a blocked period", () => {
-    const blocked = { id: "b1", dentistId: "d1", interval: slot(14, 16) };
+    const blocked = { id: "b1", practitionerId: "d1", interval: slot(14, 16) };
     const result = detectConflicts(slot(15, 16), baseContext({ blockedPeriods: [blocked] }));
     expect(result).toEqual({ hasConflict: true, reason: "blocked_period" });
   });
 });
 
 describe("detectConflicts — booked appointments / double booking", () => {
-  const booked: BookedAppointment = { id: "a1", dentistId: "d1", interval: slot(10, 11), status: "booked" };
+  const booked: BookedAppointment = { id: "a1", practitionerId: "d1", interval: slot(10, 11), status: "booked" };
 
   it("rejects an overlapping appointment", () => {
     const result = detectConflicts(slot(10, 11), baseContext({ bookedAppointments: [booked] }));
@@ -150,7 +150,7 @@ describe("detectConflicts — booked appointments / double booking", () => {
 
 describe("overlapsAppointment", () => {
   it("mirrors detectConflicts' booked-appointment logic", () => {
-    const booked: BookedAppointment = { id: "a1", dentistId: "d1", interval: slot(10, 11), status: "confirmed" };
+    const booked: BookedAppointment = { id: "a1", practitionerId: "d1", interval: slot(10, 11), status: "confirmed" };
     expect(overlapsAppointment(slot(10, 11), booked)).toBe(true);
     expect(overlapsAppointment(slot(11, 12), booked)).toBe(false);
     expect(overlapsAppointment(slot(10, 11), { ...booked, status: "cancelled" })).toBe(false);

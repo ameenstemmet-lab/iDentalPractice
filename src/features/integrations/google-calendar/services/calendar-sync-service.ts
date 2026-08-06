@@ -65,8 +65,8 @@ export class CalendarSyncService {
     if (!payload) return; // nothing to sync — appointment doesn't exist
 
     const connection =
-      (await this.repository.getConnectionForDentist(payload.practiceId, payload.dentistId)) ??
-      (await this.repository.getConnectionForDentist(payload.practiceId, null));
+      (await this.repository.getConnectionForPractitioner(payload.practiceId, payload.practitionerId)) ??
+      (await this.repository.getConnectionForPractitioner(payload.practiceId, null));
 
     if (!connection || !connection.syncEnabled || connection.status !== "connected") {
       return; // no active connection — sync is a no-op, not a failure

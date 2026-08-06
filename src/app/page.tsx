@@ -26,7 +26,7 @@ export default function Home() {
           Booking your visit should feel this easy.
         </h1>
         <p className="mt-4 max-w-md text-base text-muted-foreground">
-          Choose your dentist, treatment, and time in a few effortless steps.
+          Choose your practitioner, treatment, and time in a few effortless steps.
         </p>
         <Button asChild size="lg" className="mt-8">
           <Link href="/booking">Reserve Your Visit</Link>

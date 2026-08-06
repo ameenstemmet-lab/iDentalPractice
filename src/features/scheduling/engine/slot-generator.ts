@@ -1,5 +1,5 @@
 /**
- * Turns a dentist's working hours into a grid of candidate slots, then
+ * Turns a practitioner's working hours into a grid of candidate slots, then
  * asks conflict-detector whether each one is actually bookable. The grid
  * and the "is it free" check are deliberately separate concerns — this
  * file only decides *where* the candidates are; detectConflicts decides
@@ -24,7 +24,7 @@ function toConflictContext(context: SchedulingContext): ConflictContext {
 }
 
 /**
- * Generates every candidate slot for one dentist on one day, each
+ * Generates every candidate slot for one practitioner on one day, each
  * annotated with whether it's actually available. The grid steps by
  * `slotIntervalMinutes` (default: the treatment's own duration — matching
  * "08:00, 08:30, 09:00..." for a 30-minute treatment). A non-working day,

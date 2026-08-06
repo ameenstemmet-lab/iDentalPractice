@@ -13,11 +13,11 @@ export const metadata = { title: "Reports — iDentalPractice" };
 
 const REPORTS = [
   { title: "Appointments", description: "Volume, duration, and completion rate over time.", icon: BarChart3Icon },
-  { title: "No Shows", description: "No-show rate by dentist and treatment type.", icon: UserXIcon },
+  { title: "No Shows", description: "No-show rate by practitioner and treatment type.", icon: UserXIcon },
   { title: "Patient Growth", description: "New vs. returning patients month over month.", icon: TrendingUpIcon },
   { title: "Revenue", description: "Requires billing — not built yet.", icon: WalletIcon },
   { title: "Popular Treatments", description: "Most-booked treatments by volume and revenue.", icon: StethoscopeIcon },
-  { title: "Dentist Utilisation", description: "Booked hours vs. available working hours.", icon: CalendarXIcon },
+  { title: "Practitioner Utilisation", description: "Booked hours vs. available working hours.", icon: CalendarXIcon },
 ];
 
 export default function ReportsPage() {

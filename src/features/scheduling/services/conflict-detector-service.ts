@@ -7,7 +7,7 @@ import { detectConflicts } from "../engine/conflict-detector";
 export { isSlotAvailable } from "../engine/conflict-detector";
 
 export interface CheckIntervalParams {
-  dentistId: string;
+  practitionerId: string;
   date: ISODate;
   timezone: TimeZone;
   interval: Interval;
@@ -17,7 +17,7 @@ export interface CheckIntervalParams {
 
 /**
  * Service-layer counterpart to engine/conflict-detector: fetches the data
- * for one dentist/day and checks one specific (not necessarily grid-
+ * for one practitioner/day and checks one specific (not necessarily grid-
  * aligned) interval against it. This is what BookingRulesService calls for
  * the final, authoritative check before a booking is written.
  */
@@ -32,7 +32,7 @@ export class ConflictDetector {
     const dayData = await fetchDayData(
       this.repository,
       this.workingHoursService,
-      params.dentistId,
+      params.practitionerId,
       params.date,
       params.timezone
     );

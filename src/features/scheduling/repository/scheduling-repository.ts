@@ -18,10 +18,10 @@ import type {
  * touching any scheduling logic.
  */
 export interface SchedulingRepository {
-  getWorkingHours(dentistId: string, dayOfWeek: DayOfWeek): Promise<WorkingHoursRecord | null>;
-  getBreaks(dentistId: string, dayOfWeek: DayOfWeek): Promise<BreakRecord[]>;
+  getWorkingHours(practitionerId: string, dayOfWeek: DayOfWeek): Promise<WorkingHoursRecord | null>;
+  getBreaks(practitionerId: string, dayOfWeek: DayOfWeek): Promise<BreakRecord[]>;
   /** Blocked periods overlapping the given calendar date, in the given timezone. */
-  getBlockedPeriods(dentistId: string, date: ISODate, timezone: TimeZone): Promise<BlockedPeriodRecord[]>;
-  /** Non-cancelled appointments for the dentist on the given calendar date. */
-  getBookedAppointments(dentistId: string, date: ISODate, timezone: TimeZone): Promise<BookedAppointment[]>;
+  getBlockedPeriods(practitionerId: string, date: ISODate, timezone: TimeZone): Promise<BlockedPeriodRecord[]>;
+  /** Non-cancelled appointments for the practitioner on the given calendar date. */
+  getBookedAppointments(practitionerId: string, date: ISODate, timezone: TimeZone): Promise<BookedAppointment[]>;
 }

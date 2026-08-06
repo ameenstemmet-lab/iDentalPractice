@@ -24,7 +24,7 @@ export interface PatientAppointmentSummary {
   startTime: string;
   endTime: string;
   status: AppointmentStatus;
-  dentistName: string;
+  practitionerName: string;
   treatmentName: string;
 }
 

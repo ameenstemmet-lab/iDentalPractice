@@ -14,8 +14,8 @@ export type ConnectionStatus = "connected" | "error" | "disconnected";
 export interface CalendarConnection {
   id: string;
   practiceId: string;
-  /** Null = a practice-wide connection rather than one dentist's own calendar. */
-  dentistId: string | null;
+  /** Null = a practice-wide connection rather than one practitioner's own calendar. */
+  practitionerId: string | null;
   provider: CalendarProviderName;
   accountEmail: string;
   calendarId: string;
@@ -79,7 +79,7 @@ export interface CalendarEvent {
 export interface AppointmentSyncPayload {
   appointmentId: string;
   practiceId: string;
-  dentistId: string;
+  practitionerId: string;
   summary: string;
   description?: string;
   start: Date;
@@ -136,7 +136,7 @@ export interface SyncJob {
 
 export interface OAuthStatePayload {
   practiceId: string;
-  dentistId: string | null;
+  practitionerId: string | null;
   nonce: string;
   issuedAt: number;
 }

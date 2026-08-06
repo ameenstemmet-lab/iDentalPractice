@@ -9,7 +9,7 @@ import type {
 
 export interface NewConnectionInput {
   practiceId: string;
-  dentistId: string | null;
+  practitionerId: string | null;
   accountEmail: string;
   calendarId: string;
   calendarSummary: string | null;
@@ -48,8 +48,8 @@ export interface SyncJobPatch {
  */
 export interface GoogleCalendarRepository {
   getConnection(connectionId: string): Promise<CalendarConnection | null>;
-  /** dentistId: null looks up the practice-wide connection. */
-  getConnectionForDentist(practiceId: string, dentistId: string | null): Promise<CalendarConnection | null>;
+  /** practitionerId: null looks up the practice-wide connection. */
+  getConnectionForPractitioner(practiceId: string, practitionerId: string | null): Promise<CalendarConnection | null>;
   listConnections(practiceId: string): Promise<CalendarConnection[]>;
   createConnection(input: NewConnectionInput): Promise<CalendarConnection>;
   updateConnection(connectionId: string, patch: ConnectionPatch): Promise<CalendarConnection>;

@@ -6,16 +6,16 @@
  * can be replaced wholesale.
  */
 
-export interface DentistWorkingHoursRow {
-  dentist_id: string;
+export interface PractitionerWorkingHoursRow {
+  practitioner_id: string;
   day_of_week: number;
   start_time: string | null; // "HH:mm:ss"
   end_time: string | null;
   is_working: boolean;
 }
 
-export interface DentistBreakRow {
-  dentist_id: string;
+export interface PractitionerBreakRow {
+  practitioner_id: string;
   day_of_week: number;
   start_time: string; // "HH:mm:ss"
   end_time: string;
@@ -24,7 +24,7 @@ export interface DentistBreakRow {
 
 export interface BlockedPeriodRow {
   id: string;
-  dentist_id: string;
+  practitioner_id: string;
   starts_at: string; // timestamptz ISO string
   ends_at: string;
   reason: string | null;
@@ -39,7 +39,7 @@ export type AppointmentStatusRow =
 
 export interface AppointmentRow {
   id: string;
-  dentist_id: string;
+  practitioner_id: string;
   appointment_date: string; // "yyyy-mm-dd"
   start_time: string; // "HH:mm:ss"
   end_time: string;

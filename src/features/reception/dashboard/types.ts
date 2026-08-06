@@ -11,7 +11,7 @@ export interface DashboardStats {
 export interface RecentActivityItem {
   id: string;
   patientName: string;
-  dentistName: string;
+  practitionerName: string;
   treatmentName: string;
   appointmentDate: string;
   startTime: string;

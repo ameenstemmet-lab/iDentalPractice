@@ -19,9 +19,9 @@ export class InMemoryGoogleCalendarRepository implements GoogleCalendarRepositor
     return this.connections.get(connectionId) ?? null;
   }
 
-  async getConnectionForDentist(practiceId: string, dentistId: string | null): Promise<CalendarConnection | null> {
+  async getConnectionForPractitioner(practiceId: string, practitionerId: string | null): Promise<CalendarConnection | null> {
     for (const connection of this.connections.values()) {
-      if (connection.practiceId === practiceId && connection.dentistId === dentistId) return connection;
+      if (connection.practiceId === practiceId && connection.practitionerId === practitionerId) return connection;
     }
     return null;
   }
@@ -34,7 +34,7 @@ export class InMemoryGoogleCalendarRepository implements GoogleCalendarRepositor
     const connection: CalendarConnection = {
       id: randomUUID(),
       practiceId: input.practiceId,
-      dentistId: input.dentistId,
+      practitionerId: input.practitionerId,
       provider: "google",
       accountEmail: input.accountEmail,
       calendarId: input.calendarId,

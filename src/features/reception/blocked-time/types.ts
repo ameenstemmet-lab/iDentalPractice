@@ -2,15 +2,15 @@ export const BLOCKED_TIME_REASONS = ["Leave", "Training", "Meeting", "Public Hol
 
 export interface BlockedPeriod {
   id: string;
-  dentistId: string;
-  dentistName: string;
+  practitionerId: string;
+  practitionerName: string;
   startsAt: string; // ISO instant
   endsAt: string;
   reason: string | null;
 }
 
 export interface BlockedPeriodInput {
-  dentistId: string;
+  practitionerId: string;
   startsAt: string; // ISO instant
   endsAt: string;
   reason?: string;

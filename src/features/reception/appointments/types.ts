@@ -12,9 +12,9 @@ export interface AppointmentListItem {
   patientId: string;
   patientName: string;
   patientCellphone: string | null;
-  dentistId: string;
-  dentistName: string;
-  dentistColour: string;
+  practitionerId: string;
+  practitionerName: string;
+  practitionerColour: string;
   treatmentId: string;
   treatmentName: string;
   treatmentPrice: number;
@@ -24,7 +24,7 @@ export interface ListAppointmentsFilters {
   practiceId: string;
   search?: string;
   status?: AppointmentStatus | "all";
-  dentistId?: string | "all";
+  practitionerId?: string | "all";
   fromDate?: string;
   toDate?: string;
   page?: number;

@@ -20,7 +20,7 @@ function toConnection(row: GoogleCalendarConnectionRow): CalendarConnection {
   return {
     id: row.id,
     practiceId: row.practice_id,
-    dentistId: row.dentist_id,
+    practitionerId: row.practitioner_id,
     provider: row.provider,
     accountEmail: row.google_account_email,
     calendarId: row.calendar_id,
@@ -66,15 +66,15 @@ export class SupabaseGoogleCalendarRepository implements GoogleCalendarRepositor
     return data ? toConnection(data) : null;
   }
 
-  async getConnectionForDentist(practiceId: string, dentistId: string | null): Promise<CalendarConnection | null> {
+  async getConnectionForPractitioner(practiceId: string, practitionerId: string | null): Promise<CalendarConnection | null> {
     let query = this.client
       .from("google_calendar_connections")
       .select("*")
       .eq("practice_id", practiceId);
-    query = dentistId ? query.eq("dentist_id", dentistId) : query.is("dentist_id", null);
+    query = practitionerId ? query.eq("practitioner_id", practitionerId) : query.is("practitioner_id", null);
 
     const { data, error } = await query.maybeSingle<GoogleCalendarConnectionRow>();
-    if (error) throw new Error(`getConnectionForDentist failed: ${error.message}`);
+    if (error) throw new Error(`getConnectionForPractitioner failed: ${error.message}`);
     return data ? toConnection(data) : null;
   }
 
@@ -92,7 +92,7 @@ export class SupabaseGoogleCalendarRepository implements GoogleCalendarRepositor
       .from("google_calendar_connections")
       .insert({
         practice_id: input.practiceId,
-        dentist_id: input.dentistId,
+        practitioner_id: input.practitionerId,
         google_account_email: input.accountEmail,
         calendar_id: input.calendarId,
         calendar_summary: input.calendarSummary,

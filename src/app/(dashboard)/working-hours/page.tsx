@@ -9,25 +9,25 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { usePracticeContext } from "@/components/reception/practice-context";
-import { useDentists } from "@/features/reception/dentists/queries";
+import { usePractitioners } from "@/features/reception/practitioners/queries";
 import {
   useAddBreak,
   useDeleteBreak,
-  useDentistBreaks,
+  usePractitionerBreaks,
   useSaveWorkingDay,
   useWorkingHours,
 } from "@/features/reception/working-hours/queries";
 import { WEEKDAY_LABELS } from "@/features/reception/working-hours/types";
 
 function WorkingDayRow({
-  dentistId,
+  practitionerId,
   practiceId,
   dayOfWeek,
   isWorking,
   startTime,
   endTime,
 }: {
-  dentistId: string;
+  practitionerId: string;
   practiceId: string;
   dayOfWeek: number;
   isWorking: boolean;
@@ -40,7 +40,7 @@ function WorkingDayRow({
 
   function persist(next: { isWorking: boolean; startTime: string | null; endTime: string | null }) {
     save.mutate(
-      { dentistId, practiceId, dayOfWeek, ...next },
+      { practitionerId, practiceId, dayOfWeek, ...next },
       { onError: (err) => toast.error(err instanceof Error ? err.message : "Failed to save.") }
     );
   }
@@ -77,10 +77,10 @@ function WorkingDayRow({
   );
 }
 
-function BreaksEditor({ dentistId, practiceId }: { dentistId: string; practiceId: string }) {
-  const breaks = useDentistBreaks(dentistId);
+function BreaksEditor({ practitionerId, practiceId }: { practitionerId: string; practiceId: string }) {
+  const breaks = usePractitionerBreaks(practitionerId);
   const addBreak = useAddBreak();
-  const deleteBreak = useDeleteBreak(dentistId);
+  const deleteBreak = useDeleteBreak(practitionerId);
   const [dayOfWeek, setDayOfWeek] = React.useState("1");
   const [start, setStart] = React.useState("12:00");
   const [end, setEnd] = React.useState("13:00");
@@ -130,7 +130,7 @@ function BreaksEditor({ dentistId, practiceId }: { dentistId: string; practiceId
           className="gap-1.5"
           onClick={() =>
             addBreak.mutate(
-              { dentistId, practiceId, dayOfWeek: Number(dayOfWeek), startTime: start, endTime: end, description: "Lunch" },
+              { practitionerId, practiceId, dayOfWeek: Number(dayOfWeek), startTime: start, endTime: end, description: "Lunch" },
               { onError: (err) => toast.error(err instanceof Error ? err.message : "Failed to add break.") }
             )
           }
@@ -145,28 +145,28 @@ function BreaksEditor({ dentistId, practiceId }: { dentistId: string; practiceId
 
 export default function WorkingHoursPage() {
   const { practiceId } = usePracticeContext();
-  const dentists = useDentists(practiceId ?? "");
-  const [dentistId, setDentistId] = React.useState<string>("");
+  const practitioners = usePractitioners(practiceId ?? "");
+  const [practitionerId, setPractitionerId] = React.useState<string>("");
 
   React.useEffect(() => {
-    if (!dentistId && dentists.data?.length) setDentistId(dentists.data[0].id);
-  }, [dentistId, dentists.data]);
+    if (!practitionerId && practitioners.data?.length) setPractitionerId(practitioners.data[0].id);
+  }, [practitionerId, practitioners.data]);
 
-  const workingHours = useWorkingHours(dentistId || undefined);
+  const workingHours = useWorkingHours(practitionerId || undefined);
 
   return (
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-foreground">Working Hours</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Set each dentist&apos;s weekly schedule and breaks.</p>
+        <p className="mt-1 text-sm text-muted-foreground">Set each practitioner&apos;s weekly schedule and breaks.</p>
       </div>
 
-      <Select value={dentistId} onValueChange={setDentistId}>
+      <Select value={practitionerId} onValueChange={setPractitionerId}>
         <SelectTrigger className="w-64">
-          <SelectValue placeholder="Choose a dentist" />
+          <SelectValue placeholder="Choose a practitioner" />
         </SelectTrigger>
         <SelectContent>
-          {dentists.data?.map((d) => (
+          {practitioners.data?.map((d) => (
             <SelectItem key={d.id} value={d.id}>
               {d.firstName} {d.lastName}
             </SelectItem>
@@ -174,18 +174,18 @@ export default function WorkingHoursPage() {
         </SelectContent>
       </Select>
 
-      {!dentistId ? null : workingHours.isLoading ? (
+      {!practitionerId ? null : workingHours.isLoading ? (
         <Skeleton className="h-64 w-full max-w-xl" />
       ) : (
         <div className="max-w-xl">
           <div className="divide-y divide-border rounded-lg border border-border px-4">
             {workingHours.data?.map((day) => (
-              <WorkingDayRow key={day.dayOfWeek} dentistId={dentistId} practiceId={practiceId ?? ""} {...day} />
+              <WorkingDayRow key={day.dayOfWeek} practitionerId={practitionerId} practiceId={practiceId ?? ""} {...day} />
             ))}
           </div>
 
           <h2 className="mt-6 mb-3 text-sm font-medium text-foreground">Breaks</h2>
-          <BreaksEditor dentistId={dentistId} practiceId={practiceId ?? ""} />
+          <BreaksEditor practitionerId={practitionerId} practiceId={practiceId ?? ""} />
         </div>
       )}
     </div>

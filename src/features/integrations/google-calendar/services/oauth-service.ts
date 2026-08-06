@@ -10,8 +10,8 @@ const OAUTH_SCOPE = "https://www.googleapis.com/auth/calendar openid email";
 
 export interface StartConnectParams {
   practiceId: string;
-  /** Null connects a practice-wide calendar; a dentist id connects that dentist's own calendar. */
-  dentistId: string | null;
+  /** Null connects a practice-wide calendar; a practitioner id connects that practitioner's own calendar. */
+  practitionerId: string | null;
 }
 
 /**
@@ -39,7 +39,7 @@ export class OAuthService {
     if (!verified.valid || !verified.payload) {
       throw new Error(verified.error ?? "Invalid OAuth state parameter");
     }
-    const { practiceId, dentistId } = verified.payload;
+    const { practiceId, practitionerId } = verified.payload;
 
     const tokens = await this.oauthClient.exchangeCode(code);
     const [accountEmail, calendars] = await Promise.all([
@@ -48,7 +48,7 @@ export class OAuthService {
     ]);
     const primaryCalendar = calendars.find((c) => c.primary) ?? calendars[0];
 
-    const existing = await this.repository.getConnectionForDentist(practiceId, dentistId);
+    const existing = await this.repository.getConnectionForPractitioner(practiceId, practitionerId);
     const connection = existing
       ? await this.repository.updateConnection(existing.id, {
           calendarId: primaryCalendar?.id ?? "primary",
@@ -58,7 +58,7 @@ export class OAuthService {
         })
       : await this.repository.createConnection({
           practiceId,
-          dentistId,
+          practitionerId,
           accountEmail,
           calendarId: primaryCalendar?.id ?? "primary",
           calendarSummary: primaryCalendar?.summary ?? null,

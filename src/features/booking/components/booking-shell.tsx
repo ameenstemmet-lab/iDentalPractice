@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { StepIndicator } from "./step-indicator";
-import { ChooseDentistStep } from "./steps/choose-dentist-step";
+import { ChoosePractitionerStep } from "./steps/choose-practitioner-step";
 import { ChooseTreatmentStep } from "./steps/choose-treatment-step";
 import { ChooseDateStep } from "./steps/choose-date-step";
 import { ChooseTimeStep } from "./steps/choose-time-step";
@@ -18,7 +18,7 @@ import { useBookingStore } from "../store/booking-store";
 import type { BookingStep } from "../types";
 
 const stepComponents: Record<BookingStep, React.ComponentType> = {
-  dentist: ChooseDentistStep,
+  practitioner: ChoosePractitionerStep,
   treatment: ChooseTreatmentStep,
   date: ChooseDateStep,
   time: ChooseTimeStep,
@@ -64,7 +64,7 @@ export function BookingShell() {
       </header>
 
       <main className="flex flex-1 flex-col">
-        {!isConfirmation && step !== "dentist" ? (
+        {!isConfirmation && step !== "practitioner" ? (
           <div className="px-4 pt-4 sm:px-6">
             <Button
               type="button"

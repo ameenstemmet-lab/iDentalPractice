@@ -3,7 +3,7 @@
 export interface GoogleCalendarConnectionRow {
   id: string;
   practice_id: string;
-  dentist_id: string | null;
+  practitioner_id: string | null;
   provider: "google";
   google_account_email: string;
   calendar_id: string;

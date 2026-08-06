@@ -3,9 +3,9 @@ import type { TokenRefreshService } from "./token-refresh-service";
 import type { CalendarProvider, ConflictCheckResult } from "../types";
 
 /**
- * Checks a dentist's connected Google Calendar for events that would
+ * Checks a practitioner's connected Google Calendar for events that would
  * conflict with a proposed appointment slot — events on their *personal*
- * calendar that this system doesn't know about (a dentist's own doctor's
+ * calendar that this system doesn't know about (a practitioner's own doctor's
  * appointment, school pickup, etc). Our own synced appointments are
  * excluded via the ownership tag (see utils/event-tag.ts), so an
  * appointment never "conflicts" with its own calendar event.
@@ -25,13 +25,13 @@ export class ConflictDetectionService {
 
   async findExternalConflicts(
     practiceId: string,
-    dentistId: string | null,
+    practitionerId: string | null,
     range: { start: Date; end: Date },
     now: Date = new Date()
   ): Promise<ConflictCheckResult> {
     const connection =
-      (await this.repository.getConnectionForDentist(practiceId, dentistId)) ??
-      (await this.repository.getConnectionForDentist(practiceId, null));
+      (await this.repository.getConnectionForPractitioner(practiceId, practitionerId)) ??
+      (await this.repository.getConnectionForPractitioner(practiceId, null));
 
     if (!connection || !connection.syncEnabled || connection.status !== "connected") {
       return { hasConflict: false, conflictingEvents: [] };

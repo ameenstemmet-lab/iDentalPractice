@@ -8,7 +8,7 @@ import type { DayAvailability, ISODate, TimeZone } from "../types";
 export interface UseAvailabilityParams {
   /** Caller constructs and owns the service (and its Supabase client) — this hook has no opinion on either. */
   service: AvailabilityService;
-  dentistId: string;
+  practitionerId: string;
   date: ISODate;
   timezone: TimeZone;
   durationMinutes: number;
@@ -32,7 +32,7 @@ export interface UseAvailabilityResult {
 export function useAvailability(params: UseAvailabilityParams): UseAvailabilityResult {
   const {
     service,
-    dentistId,
+    practitionerId,
     date,
     timezone,
     durationMinutes,
@@ -53,7 +53,7 @@ export function useAvailability(params: UseAvailabilityParams): UseAvailabilityR
     setError(null);
 
     service
-      .getDayAvailability({ dentistId, date, timezone, durationMinutes, slotIntervalMinutes })
+      .getDayAvailability({ practitionerId, date, timezone, durationMinutes, slotIntervalMinutes })
       .then((result) => {
         if (!cancelled) setData(result);
       })
@@ -67,7 +67,7 @@ export function useAvailability(params: UseAvailabilityParams): UseAvailabilityR
     return () => {
       cancelled = true;
     };
-  }, [service, dentistId, date, timezone, durationMinutes, slotIntervalMinutes, enabled, reloadToken]);
+  }, [service, practitionerId, date, timezone, durationMinutes, slotIntervalMinutes, enabled, reloadToken]);
 
   const refetch = React.useCallback(() => setReloadToken((t) => t + 1), []);
 

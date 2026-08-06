@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { AppointmentTable } from "@/components/reception/appointment-table";
 import { usePracticeContext } from "@/components/reception/practice-context";
 import { useAppointments, useUpdateAppointmentStatus } from "@/features/reception/appointments/queries";
-import { useDentists } from "@/features/reception/dentists/queries";
+import { usePractitioners } from "@/features/reception/practitioners/queries";
 import type { AppointmentStatus } from "@/features/reception/appointments/types";
 
 const STATUS_OPTIONS: Array<{ value: AppointmentStatus | "all"; label: string }> = [
@@ -25,15 +25,15 @@ export default function AppointmentsPage() {
   const { practiceId } = usePracticeContext();
   const [search, setSearch] = React.useState("");
   const [status, setStatus] = React.useState<AppointmentStatus | "all">("all");
-  const [dentistId, setDentistId] = React.useState<string>("all");
+  const [practitionerId, setPractitionerId] = React.useState<string>("all");
   const [sortBy, setSortBy] = React.useState<"date_asc" | "date_desc">("date_asc");
 
-  const dentists = useDentists(practiceId ?? "");
+  const practitioners = usePractitioners(practiceId ?? "");
   const appointments = useAppointments({
     practiceId: practiceId ?? "",
     search: search || undefined,
     status,
-    dentistId,
+    practitionerId,
     sortBy,
     pageSize: 50,
   });
@@ -82,13 +82,13 @@ export default function AppointmentsPage() {
           </SelectContent>
         </Select>
 
-        <Select value={dentistId} onValueChange={setDentistId}>
+        <Select value={practitionerId} onValueChange={setPractitionerId}>
           <SelectTrigger className="w-full sm:w-48">
-            <SelectValue placeholder="All dentists" />
+            <SelectValue placeholder="All practitioners" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All dentists</SelectItem>
-            {dentists.data?.map((d) => (
+            <SelectItem value="all">All practitioners</SelectItem>
+            {practitioners.data?.map((d) => (
               <SelectItem key={d.id} value={d.id}>
                 {d.firstName} {d.lastName}
               </SelectItem>

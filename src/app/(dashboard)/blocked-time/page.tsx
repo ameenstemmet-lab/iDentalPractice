@@ -15,13 +15,13 @@ import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePracticeContext } from "@/components/reception/practice-context";
-import { useDentists } from "@/features/reception/dentists/queries";
+import { usePractitioners } from "@/features/reception/practitioners/queries";
 import { useBlockedPeriods, useCreateBlockedPeriod, useDeleteBlockedPeriod } from "@/features/reception/blocked-time/queries";
 import { BLOCKED_TIME_REASONS } from "@/features/reception/blocked-time/types";
 
 const blockedPeriodSchema = z
   .object({
-    dentistId: z.string().min(1, "Choose a dentist"),
+    practitionerId: z.string().min(1, "Choose a practitioner"),
     date: z.string().min(1, "Required"),
     startTime: z.string().min(1, "Required"),
     endTime: z.string().min(1, "Required"),
@@ -35,14 +35,14 @@ export default function BlockedTimePage() {
   const { practiceId, timezone } = usePracticeContext();
   const [dialogOpen, setDialogOpen] = React.useState(false);
 
-  const dentists = useDentists(practiceId ?? "");
+  const practitioners = usePractitioners(practiceId ?? "");
   const blockedPeriods = useBlockedPeriods(practiceId ?? "");
   const createBlockedPeriod = useCreateBlockedPeriod(practiceId ?? "");
   const deleteBlockedPeriod = useDeleteBlockedPeriod(practiceId ?? "");
 
   const form = useForm<BlockedPeriodFormValues>({
     resolver: zodResolver(blockedPeriodSchema),
-    defaultValues: { dentistId: "", date: "", startTime: "09:00", endTime: "17:00", reason: BLOCKED_TIME_REASONS[0] },
+    defaultValues: { practitionerId: "", date: "", startTime: "09:00", endTime: "17:00", reason: BLOCKED_TIME_REASONS[0] },
   });
 
   function handleSubmit(values: BlockedPeriodFormValues) {
@@ -54,7 +54,7 @@ export default function BlockedTimePage() {
     // this codebase).
     createBlockedPeriod.mutate(
       {
-        dentistId: values.dentistId,
+        practitionerId: values.practitionerId,
         startsAt: fromZonedTime(`${values.date}T${values.startTime}:00`, timezone).toISOString(),
         endsAt: fromZonedTime(`${values.date}T${values.endTime}:00`, timezone).toISOString(),
         reason: values.reason,
@@ -99,7 +99,7 @@ export default function BlockedTimePage() {
             <div key={period.id} className="flex items-center justify-between gap-3 px-4 py-3">
               <div>
                 <p className="text-sm font-medium text-foreground">
-                  {period.reason ?? "Blocked"} — {period.dentistName}
+                  {period.reason ?? "Blocked"} — {period.practitionerName}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {new Date(period.startsAt).toLocaleString()} → {new Date(period.endsAt).toLocaleString()}
@@ -125,21 +125,21 @@ export default function BlockedTimePage() {
           </DialogHeader>
           <form onSubmit={form.handleSubmit(handleSubmit)} noValidate>
             <FieldGroup>
-              <Field data-invalid={!!form.formState.errors.dentistId}>
-                <FieldLabel>Dentist</FieldLabel>
-                <Select onValueChange={(v) => form.setValue("dentistId", v, { shouldValidate: true })}>
+              <Field data-invalid={!!form.formState.errors.practitionerId}>
+                <FieldLabel>Practitioner</FieldLabel>
+                <Select onValueChange={(v) => form.setValue("practitionerId", v, { shouldValidate: true })}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Choose a dentist" />
+                    <SelectValue placeholder="Choose a practitioner" />
                   </SelectTrigger>
                   <SelectContent>
-                    {dentists.data?.map((d) => (
+                    {practitioners.data?.map((d) => (
                       <SelectItem key={d.id} value={d.id}>
                         {d.firstName} {d.lastName}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                <FieldError errors={[form.formState.errors.dentistId]} />
+                <FieldError errors={[form.formState.errors.practitionerId]} />
               </Field>
               <Field data-invalid={!!form.formState.errors.reason}>
                 <FieldLabel>Reason</FieldLabel>

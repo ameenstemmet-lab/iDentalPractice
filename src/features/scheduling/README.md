@@ -58,7 +58,7 @@ Application-level conflict checks give fast, friendly errors but cannot
 fully close the race window between two concurrent booking requests. See
 `supabase/migrations/20260806100009_prevent_overlapping_appointments.sql`:
 a Postgres `EXCLUDE` constraint (`btree_gist`) makes it structurally
-impossible for two non-cancelled appointments for the same dentist to have
+impossible for two non-cancelled appointments for the same practitioner to have
 overlapping time ranges, even under concurrency. The app-level check
 (`BookingRulesService.validateBooking`) still runs first, for a good error
 message — the constraint is what makes the guarantee actually hold.
@@ -75,18 +75,18 @@ const bookingRules = new BookingRulesService(repository);
 
 // What can be booked today?
 const day = await availability.getDayAvailability({
-  dentistId, date: "2026-08-10", timezone: "Africa/Johannesburg", durationMinutes: 30,
+  practitionerId, date: "2026-08-10", timezone: "Africa/Johannesburg", durationMinutes: 30,
 });
 
 // Day is full — where's the next opening?
 const next = await availability.findNextAvailable({
-  dentistId, fromDate: "2026-08-10", timezone: "Africa/Johannesburg", durationMinutes: 30,
+  practitionerId, fromDate: "2026-08-10", timezone: "Africa/Johannesburg", durationMinutes: 30,
 });
 // -> { date: "2026-08-11", time: "09:30", interval: {...} }
 
 // Immediately before writing to `appointments` — never trust the client:
 const result = await bookingRules.validateBooking({
-  dentistId, date, timezone, startTime: "09:30", durationMinutes: 30,
+  practitionerId, date, timezone, startTime: "09:30", durationMinutes: 30,
 });
 if (!result.valid) {
   // result.reason: "past" | "outside_working_hours" | "break" | "blocked_period" | "booked" | "invalid_duration"

@@ -61,7 +61,7 @@ export function AppointmentTable({ appointments, isLoading, onStatusChange }: Ap
         <TableHeader>
           <TableRow>
             <TableHead>Patient</TableHead>
-            <TableHead>Dentist</TableHead>
+            <TableHead>Practitioner</TableHead>
             <TableHead>Treatment</TableHead>
             <TableHead>Date &amp; time</TableHead>
             <TableHead>Status</TableHead>
@@ -88,9 +88,9 @@ export function AppointmentTable({ appointments, isLoading, onStatusChange }: Ap
                   <span
                     aria-hidden
                     className="size-2 rounded-full"
-                    style={{ backgroundColor: appointment.dentistColour }}
+                    style={{ backgroundColor: appointment.practitionerColour }}
                   />
-                  {appointment.dentistName}
+                  {appointment.practitionerName}
                 </span>
               </TableCell>
               <TableCell className="text-muted-foreground">{appointment.treatmentName}</TableCell>

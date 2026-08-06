@@ -10,7 +10,7 @@ const DEFAULT_SEARCH_BATCH_DAYS = 14;
 const DEFAULT_MAX_SEARCH_DAYS = 60;
 
 export interface AvailabilityParams {
-  dentistId: string;
+  practitionerId: string;
   timezone: TimeZone;
   durationMinutes: number;
   slotIntervalMinutes?: number;
@@ -67,12 +67,12 @@ export class AvailabilityService {
           const dayData = await fetchDayData(
             this.repository,
             this.workingHoursService,
-            params.dentistId,
+            params.practitionerId,
             date,
             params.timezone
           );
           return {
-            dentistId: params.dentistId,
+            practitionerId: params.practitionerId,
             date,
             timezone: params.timezone,
             durationMinutes: params.durationMinutes,

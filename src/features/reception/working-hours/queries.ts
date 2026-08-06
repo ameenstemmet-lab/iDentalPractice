@@ -6,23 +6,23 @@ import { addBreak, deleteBreak, getBreaks, getWorkingHours, saveWorkingDay } fro
 import type { AddBreakInput, SaveWorkingDayInput } from "./types";
 
 export const workingHoursKeys = {
-  hours: (dentistId: string) => ["working-hours", dentistId] as const,
-  breaks: (dentistId: string) => ["dentist-breaks", dentistId] as const,
+  hours: (practitionerId: string) => ["working-hours", practitionerId] as const,
+  breaks: (practitionerId: string) => ["practitioner-breaks", practitionerId] as const,
 };
 
-export function useWorkingHours(dentistId: string | undefined) {
+export function useWorkingHours(practitionerId: string | undefined) {
   return useQuery({
-    queryKey: workingHoursKeys.hours(dentistId ?? ""),
-    queryFn: () => getWorkingHours(dentistId!),
-    enabled: Boolean(dentistId),
+    queryKey: workingHoursKeys.hours(practitionerId ?? ""),
+    queryFn: () => getWorkingHours(practitionerId!),
+    enabled: Boolean(practitionerId),
   });
 }
 
-export function useDentistBreaks(dentistId: string | undefined) {
+export function usePractitionerBreaks(practitionerId: string | undefined) {
   return useQuery({
-    queryKey: workingHoursKeys.breaks(dentistId ?? ""),
-    queryFn: () => getBreaks(dentistId!),
-    enabled: Boolean(dentistId),
+    queryKey: workingHoursKeys.breaks(practitionerId ?? ""),
+    queryFn: () => getBreaks(practitionerId!),
+    enabled: Boolean(practitionerId),
   });
 }
 
@@ -31,7 +31,7 @@ export function useSaveWorkingDay() {
   return useMutation({
     mutationFn: (input: SaveWorkingDayInput) => saveWorkingDay(input),
     onSuccess: (_, input) => {
-      queryClient.invalidateQueries({ queryKey: workingHoursKeys.hours(input.dentistId) });
+      queryClient.invalidateQueries({ queryKey: workingHoursKeys.hours(input.practitionerId) });
     },
   });
 }
@@ -41,17 +41,17 @@ export function useAddBreak() {
   return useMutation({
     mutationFn: (input: AddBreakInput) => addBreak(input),
     onSuccess: (_, input) => {
-      queryClient.invalidateQueries({ queryKey: workingHoursKeys.breaks(input.dentistId) });
+      queryClient.invalidateQueries({ queryKey: workingHoursKeys.breaks(input.practitionerId) });
     },
   });
 }
 
-export function useDeleteBreak(dentistId: string) {
+export function useDeleteBreak(practitionerId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (breakId: string) => deleteBreak(breakId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: workingHoursKeys.breaks(dentistId) });
+      queryClient.invalidateQueries({ queryKey: workingHoursKeys.breaks(practitionerId) });
     },
   });
 }

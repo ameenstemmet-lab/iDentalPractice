@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 
 import { Separator } from "@/components/ui/separator";
-import type { Dentist, PatientDetails, Treatment } from "../types";
+import type { Practitioner, PatientDetails, Treatment } from "../types";
 import { formatCurrency, formatDateLong } from "../utils/format";
 
 function SummaryRow({
@@ -32,13 +32,13 @@ function SummaryRow({
 }
 
 export function BookingSummary({
-  dentist,
+  practitioner,
   treatment,
   date,
   time,
   patient,
 }: {
-  dentist: Dentist;
+  practitioner: Practitioner;
   treatment: Treatment;
   date: string;
   time: string;
@@ -49,8 +49,8 @@ export function BookingSummary({
       <div className="divide-y divide-border">
         <SummaryRow
           icon={UserIcon}
-          label="Dentist"
-          value={`${dentist.title} ${dentist.firstName} ${dentist.lastName}`}
+          label="Practitioner"
+          value={`${practitioner.title} ${practitioner.firstName} ${practitioner.lastName}`}
         />
         <SummaryRow icon={StethoscopeIcon} label="Treatment" value={treatment.name} />
         <SummaryRow

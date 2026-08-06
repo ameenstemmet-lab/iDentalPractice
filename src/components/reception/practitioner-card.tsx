@@ -12,37 +12,37 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { Dentist } from "@/features/reception/dentists/types";
+import type { Practitioner } from "@/features/reception/practitioners/types";
 
-export function DentistCard({
-  dentist,
+export function PractitionerCard({
+  practitioner,
   onEdit,
   onToggleArchived,
 }: {
-  dentist: Dentist;
+  practitioner: Practitioner;
   onEdit: () => void;
   onToggleArchived: () => void;
 }) {
-  const initials = `${dentist.firstName[0]}${dentist.lastName[0]}`.toUpperCase();
+  const initials = `${practitioner.firstName[0]}${practitioner.lastName[0]}`.toUpperCase();
 
   return (
     <div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4">
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-3">
-          <Avatar className="size-10" style={{ backgroundColor: `${dentist.colourCode}22` }}>
-            <AvatarFallback style={{ color: dentist.colourCode }}>{initials}</AvatarFallback>
+          <Avatar className="size-10" style={{ backgroundColor: `${practitioner.colourCode}22` }}>
+            <AvatarFallback style={{ color: practitioner.colourCode }}>{initials}</AvatarFallback>
           </Avatar>
           <div>
             <p className="text-sm font-semibold text-foreground">
-              {dentist.title ? `${dentist.title} ` : ""}
-              {dentist.firstName} {dentist.lastName}
+              {practitioner.title ? `${practitioner.title} ` : ""}
+              {practitioner.firstName} {practitioner.lastName}
             </p>
-            <p className="text-xs text-muted-foreground">{dentist.email ?? dentist.cellphone ?? "No contact info"}</p>
+            <p className="text-xs text-muted-foreground">{practitioner.email ?? practitioner.cellphone ?? "No contact info"}</p>
           </div>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon-sm" aria-label="Dentist actions">
+            <Button variant="ghost" size="icon-sm" aria-label="Practitioner actions">
               <MoreHorizontalIcon />
             </Button>
           </DropdownMenuTrigger>
@@ -52,14 +52,14 @@ export function DentistCard({
               Edit
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href={`/dentists/${dentist.id}/working-hours`}>
+              <Link href="/working-hours">
                 <ClockIcon />
                 Working hours
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem variant="destructive" onClick={onToggleArchived}>
-              {dentist.active ? <ArchiveIcon /> : <ArchiveRestoreIcon />}
-              {dentist.active ? "Archive" : "Restore"}
+              {practitioner.active ? <ArchiveIcon /> : <ArchiveRestoreIcon />}
+              {practitioner.active ? "Archive" : "Restore"}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -68,9 +68,9 @@ export function DentistCard({
       <div className="flex items-center gap-1.5">
         <Badge variant="secondary" className="gap-1">
           <ClockIcon className="size-3" />
-          {dentist.consultationDuration} min
+          {practitioner.consultationDuration} min
         </Badge>
-        {!dentist.active ? <Badge variant="outline">Archived</Badge> : null}
+        {!practitioner.active ? <Badge variant="outline">Archived</Badge> : null}
       </div>
     </div>
   );

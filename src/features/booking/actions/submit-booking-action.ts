@@ -10,7 +10,7 @@ import type { BookingReservation, PatientDetails } from "../types";
 import { getCurrentBookingPractice } from "./practice";
 
 export interface SubmitBookingInput {
-  dentistId: string;
+  practitionerId: string;
   treatmentId: string;
   date: string; // yyyy-mm-dd
   time: string; // HH:mm
@@ -75,7 +75,7 @@ async function syncNewAppointmentToGoogleCalendar(appointmentId: string): Promis
 async function sendConfirmationEmail(params: {
   supabase: ReturnType<typeof createSupabaseAdminClient>;
   practiceName: string;
-  dentistId: string;
+  practitionerId: string;
   treatmentId: string;
   patient: PatientDetails;
   date: string;
@@ -83,9 +83,9 @@ async function sendConfirmationEmail(params: {
   reference: string;
 }): Promise<void> {
   try {
-    const { supabase, dentistId, treatmentId } = params;
-    const [{ data: dentist }, { data: treatment }] = await Promise.all([
-      supabase.from("dentists").select("title, first_name, last_name").eq("id", dentistId).single<{
+    const { supabase, practitionerId, treatmentId } = params;
+    const [{ data: practitioner }, { data: treatment }] = await Promise.all([
+      supabase.from("practitioners").select("title, first_name, last_name").eq("id", practitionerId).single<{
         title: string | null;
         first_name: string;
         last_name: string;
@@ -99,7 +99,9 @@ async function sendConfirmationEmail(params: {
       to: params.patient.email,
       patientFirstName: params.patient.firstName,
       practiceName: params.practiceName,
-      dentistName: dentist ? `${dentist.title ?? "Dr."} ${dentist.first_name} ${dentist.last_name}` : "your dentist",
+      practitionerName: practitioner
+        ? `${practitioner.title ? `${practitioner.title} ` : ""}${practitioner.first_name} ${practitioner.last_name}`
+        : "your practitioner",
       treatmentName: treatment?.treatment_name ?? "your appointment",
       dateLabel: formatDateLong(params.date),
       timeLabel: params.time,
@@ -135,7 +137,7 @@ export async function submitBookingAction(
   const bookingRules = new BookingRulesService(new SupabaseSchedulingRepository(supabase));
 
   const validation = await bookingRules.validateBooking({
-    dentistId: input.dentistId,
+    practitionerId: input.practitionerId,
     date: input.date,
     timezone: practice.timezone,
     startTime: input.time,
@@ -160,7 +162,7 @@ export async function submitBookingAction(
     .insert({
       practice_id: practice.id,
       patient_id: patientId,
-      dentist_id: input.dentistId,
+      practitioner_id: input.practitionerId,
       treatment_id: input.treatmentId,
       appointment_date: input.date,
       start_time: input.time,
@@ -185,7 +187,7 @@ export async function submitBookingAction(
     sendConfirmationEmail({
       supabase,
       practiceName: practice.practiceName,
-      dentistId: input.dentistId,
+      practitionerId: input.practitionerId,
       treatmentId: input.treatmentId,
       patient: parsedPatient.data,
       date: input.date,

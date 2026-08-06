@@ -41,7 +41,7 @@ Calendar integration is a new class implementing the same interface,
 wired into the same connection/sync-queue tables (with a `provider`
 column already in place for exactly this) — zero changes to sync
 orchestration, retry logic, or conflict detection. An AI receptionist
-asking "is this dentist free, including their personal calendar?" calls
+asking "is this practitioner free, including their personal calendar?" calls
 `ConflictDetectionService.findExternalConflicts()` — the same call a human
 settings page makes.
 
@@ -49,7 +49,7 @@ settings page makes.
 
 1. `GET /api/integrations/google-calendar/oauth/start?practiceId=...` builds
    a Google consent URL with a signed `state` parameter (HMAC, 10-minute
-   expiry — see `utils/oauth-state.ts`) encoding which practice/dentist
+   expiry — see `utils/oauth-state.ts`) encoding which practice/practitioner
    initiated the connection, and redirects the browser to it.
 2. Google redirects back to
    `GET /api/integrations/google-calendar/oauth/callback?code=...&state=...`.
@@ -86,7 +86,7 @@ Two tables, deliberately split:
 — call each right after the corresponding write to `appointments`
 succeeds. Every call:
 
-1. Looks up the dentist's own connection, falling back to the practice-wide
+1. Looks up the practitioner's own connection, falling back to the practice-wide
    one.
 2. Enqueues a durable job in `calendar_sync_queue` (a database-level unique
    index prevents a duplicate pending/processing job for the same
@@ -121,9 +121,9 @@ until something calls the sweep.
 
 ## Conflict detection
 
-`ConflictDetectionService.findExternalConflicts(practiceId, dentistId, range)`
+`ConflictDetectionService.findExternalConflicts(practiceId, practitionerId, range)`
 checks the connected calendar for events **we didn't create** overlapping
-a proposed range — a dentist's personal doctor's appointment, school
+a proposed range — a practitioner's personal doctor's appointment, school
 pickup, anything on their calendar this system doesn't know about. Our own
 synced events are tagged via `extendedProperties.private` (see
 `utils/event-tag.ts`) and always excluded, so an appointment never

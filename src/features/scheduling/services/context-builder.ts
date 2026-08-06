@@ -10,7 +10,7 @@ export interface DayData {
 }
 
 /**
- * Fetches every piece of data the engine needs for one dentist on one day,
+ * Fetches every piece of data the engine needs for one practitioner on one day,
  * in parallel. Internal to the services layer — TimeSlotGenerator wraps
  * this into a SchedulingContext (for grid generation); ConflictDetector
  * wraps it into a ConflictContext (for ad-hoc interval checks). Neither
@@ -19,14 +19,14 @@ export interface DayData {
 export async function fetchDayData(
   repository: SchedulingRepository,
   workingHoursService: WorkingHoursService,
-  dentistId: string,
+  practitionerId: string,
   date: ISODate,
   timezone: TimeZone
 ): Promise<DayData> {
   const [{ workingHours, breaks }, blockedPeriods, bookedAppointments] = await Promise.all([
-    workingHoursService.getWorkingWindow(dentistId, date),
-    repository.getBlockedPeriods(dentistId, date, timezone),
-    repository.getBookedAppointments(dentistId, date, timezone),
+    workingHoursService.getWorkingWindow(practitionerId, date),
+    repository.getBlockedPeriods(practitionerId, date, timezone),
+    repository.getBookedAppointments(practitionerId, date, timezone),
   ]);
 
   return { workingHours, breaks, blockedPeriods, bookedAppointments };

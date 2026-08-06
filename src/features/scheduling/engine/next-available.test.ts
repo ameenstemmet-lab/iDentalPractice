@@ -7,12 +7,12 @@ const TZ = "Africa/Johannesburg";
 
 function contextFor(date: string, overrides: Partial<SchedulingContext> = {}): SchedulingContext {
   return {
-    dentistId: "d1",
+    practitionerId: "d1",
     date,
     timezone: TZ,
     durationMinutes: 30,
     workingHours: {
-      dentistId: "d1",
+      practitionerId: "d1",
       dayOfWeek: getDayOfWeek(date),
       isWorking: true,
       window: { startMinutes: 9 * 60, endMinutes: 10 * 60 }, // a deliberately tiny window: one 30-min slot
@@ -28,7 +28,7 @@ function contextFor(date: string, overrides: Partial<SchedulingContext> = {}): S
 function fullyBooked(date: string): SchedulingContext {
   const bookedInterval = windowToInterval({ startMinutes: 9 * 60, endMinutes: 10 * 60 }, date, TZ);
   return contextFor(date, {
-    bookedAppointments: [{ id: `booked-${date}`, dentistId: "d1", interval: bookedInterval, status: "booked" }],
+    bookedAppointments: [{ id: `booked-${date}`, practitionerId: "d1", interval: bookedInterval, status: "booked" }],
   });
 }
 
@@ -44,7 +44,7 @@ describe("findNextAvailableSlot", () => {
     const day1 = fullyBooked("2026-08-10");
     const day2 = contextFor("2026-08-11", {
       workingHours: {
-        dentistId: "d1",
+        practitionerId: "d1",
         dayOfWeek: getDayOfWeek("2026-08-11"),
         isWorking: true,
         window: { startMinutes: 9 * 60, endMinutes: 10 * 60 + 30 },
@@ -52,7 +52,7 @@ describe("findNextAvailableSlot", () => {
       bookedAppointments: [
         {
           id: "booked-day2",
-          dentistId: "d1",
+          practitionerId: "d1",
           interval: windowToInterval({ startMinutes: 9 * 60, endMinutes: 9 * 60 + 30 }, "2026-08-11", TZ),
           status: "booked",
         },
@@ -65,7 +65,7 @@ describe("findNextAvailableSlot", () => {
 
   it("skips a non-working day", () => {
     const closed = contextFor("2026-08-09", {
-      workingHours: { dentistId: "d1", dayOfWeek: 0, isWorking: false, window: null },
+      workingHours: { practitionerId: "d1", dayOfWeek: 0, isWorking: false, window: null },
     });
     const open = contextFor("2026-08-10");
 

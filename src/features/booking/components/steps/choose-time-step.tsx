@@ -14,7 +14,7 @@ import { formatDateLong } from "../../utils/format";
 
 export function ChooseTimeStep() {
   const { timezone } = useBookingPractice();
-  const dentistId = useBookingStore((s) => s.dentistId);
+  const practitionerId = useBookingStore((s) => s.practitionerId);
   const date = useBookingStore((s) => s.date);
   const time = useBookingStore((s) => s.time);
   const selectTime = useBookingStore((s) => s.selectTime);
@@ -22,9 +22,9 @@ export function ChooseTimeStep() {
   const durationMinutes = treatment?.durationMinutes ?? 30;
 
   const { data: day } = useQuery({
-    queryKey: ["booking", "time-slots", dentistId, date, timezone, durationMinutes],
-    queryFn: () => getTimeSlotsAction(dentistId!, date!, timezone, durationMinutes),
-    enabled: !!dentistId && !!date,
+    queryKey: ["booking", "time-slots", practitionerId, date, timezone, durationMinutes],
+    queryFn: () => getTimeSlotsAction(practitionerId!, date!, timezone, durationMinutes),
+    enabled: !!practitionerId && !!date,
     staleTime: 15_000,
   });
 

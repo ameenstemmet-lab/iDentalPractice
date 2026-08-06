@@ -25,9 +25,9 @@ function buildService(fetchImpl: ReturnType<typeof vi.fn>) {
 }
 
 describe("OAuthService.buildAuthorizeUrl", () => {
-  it("embeds a signed state carrying the practice and dentist ids", () => {
+  it("embeds a signed state carrying the practice and practitioner ids", () => {
     const { service } = buildService(vi.fn());
-    const url = new URL(service.buildAuthorizeUrl({ practiceId: "practice-1", dentistId: "dentist-1" }));
+    const url = new URL(service.buildAuthorizeUrl({ practiceId: "practice-1", practitionerId: "practitioner-1" }));
     expect(url.searchParams.get("state")).toBeTruthy();
     expect(url.searchParams.get("scope")).toContain("calendar");
   });
@@ -57,7 +57,7 @@ describe("OAuthService.handleCallback", () => {
       );
 
     const { service, repository } = buildService(fetchImpl);
-    const state = createOAuthState({ practiceId: "practice-1", dentistId: null }, STATE_SECRET);
+    const state = createOAuthState({ practiceId: "practice-1", practitionerId: null }, STATE_SECRET);
 
     const connection = await service.handleCallback("auth-code", state);
 
@@ -72,7 +72,7 @@ describe("OAuthService.handleCallback", () => {
     expect(decryptToken(storedTokens!.encryptedRefreshToken, KEY)).toBe("refresh-1");
   });
 
-  it("re-connecting the same practice/dentist updates the existing connection instead of creating a duplicate", async () => {
+  it("re-connecting the same practice/practitioner updates the existing connection instead of creating a duplicate", async () => {
     const tokenResponse = () =>
       jsonResponse(200, { access_token: "access-1", refresh_token: "refresh-1", expires_in: 3600, scope: "calendar" });
     const userInfoResponse = () => jsonResponse(200, { email: "admin@practice.example" });
@@ -90,12 +90,12 @@ describe("OAuthService.handleCallback", () => {
       .mockResolvedValueOnce(calendarListResponse());
 
     const { service, repository } = buildService(fetchImpl);
-    const state = createOAuthState({ practiceId: "practice-1", dentistId: null }, STATE_SECRET);
+    const state = createOAuthState({ practiceId: "practice-1", practitionerId: null }, STATE_SECRET);
 
     const first = await service.handleCallback("code-1", state);
     const second = await service.handleCallback(
       "code-2",
-      createOAuthState({ practiceId: "practice-1", dentistId: null }, STATE_SECRET)
+      createOAuthState({ practiceId: "practice-1", practitionerId: null }, STATE_SECRET)
     );
 
     expect(second.id).toBe(first.id);
@@ -114,7 +114,7 @@ describe("OAuthService.disconnect", () => {
       .mockResolvedValueOnce(jsonResponse(200, { items: [{ id: "primary", summary: "Main", primary: true }] }));
 
     const { service, repository } = buildService(fetchImpl);
-    const state = createOAuthState({ practiceId: "practice-1", dentistId: null }, STATE_SECRET);
+    const state = createOAuthState({ practiceId: "practice-1", practitionerId: null }, STATE_SECRET);
     const connection = await service.handleCallback("code", state);
 
     await service.disconnect(connection.id);

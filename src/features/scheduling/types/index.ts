@@ -39,7 +39,7 @@ export interface Interval {
 }
 
 export interface WorkingHoursRecord {
-  dentistId: string;
+  practitionerId: string;
   dayOfWeek: DayOfWeek;
   isWorking: boolean;
   /** Present iff isWorking is true. */
@@ -47,7 +47,7 @@ export interface WorkingHoursRecord {
 }
 
 export interface BreakRecord {
-  dentistId: string;
+  practitionerId: string;
   dayOfWeek: DayOfWeek;
   window: TimeWindow;
   description?: string;
@@ -55,7 +55,7 @@ export interface BreakRecord {
 
 export interface BlockedPeriodRecord {
   id: string;
-  dentistId: string;
+  practitionerId: string;
   interval: Interval;
   reason?: string;
 }
@@ -70,7 +70,7 @@ export type AppointmentStatus =
 /** The subset of an appointment the engine actually needs. */
 export interface BookedAppointment {
   id: string;
-  dentistId: string;
+  practitionerId: string;
   interval: Interval;
   status: AppointmentStatus;
 }
@@ -93,7 +93,7 @@ export type SlotUnavailableReason =
 
 export interface DayAvailability {
   date: ISODate;
-  /** False when the dentist doesn't work this day at all (weekly off-day). */
+  /** False when the practitioner doesn't work this day at all (weekly off-day). */
   isWorkingDay: boolean;
   slots: TimeSlot[];
 }
@@ -104,9 +104,9 @@ export interface NextAvailableResult {
   interval: Interval;
 }
 
-/** Everything the engine needs to compute one dentist's availability for one day. */
+/** Everything the engine needs to compute one practitioner's availability for one day. */
 export interface SchedulingContext {
-  dentistId: string;
+  practitionerId: string;
   date: ISODate;
   timezone: TimeZone;
   /** Length of the treatment being booked. */
@@ -122,7 +122,7 @@ export interface SchedulingContext {
 }
 
 export interface ConflictCheckInput {
-  dentistId: string;
+  practitionerId: string;
   interval: Interval;
   /** Excluded from the check — used when re-validating an existing appointment's own slot on reschedule. */
   excludeAppointmentId?: string;

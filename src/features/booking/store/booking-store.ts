@@ -12,14 +12,14 @@ interface BookingState {
    *  step indicator will let you jump back to. */
   furthestStepIndex: number;
 
-  dentistId: string | null;
+  practitionerId: string | null;
   treatmentId: string | null;
   date: string | null; // ISO yyyy-mm-dd
   time: string | null;
   patient: PatientDetails | null;
   reservation: BookingReservation | null;
 
-  selectDentist: (id: string) => void;
+  selectPractitioner: (id: string) => void;
   selectTreatment: (id: string) => void;
   selectDate: (date: string) => void;
   selectTime: (time: string) => void;
@@ -31,10 +31,10 @@ interface BookingState {
 }
 
 const initialState = {
-  step: "dentist" as BookingStep,
+  step: "practitioner" as BookingStep,
   direction: "forward" as Direction,
   furthestStepIndex: 0,
-  dentistId: null,
+  practitionerId: null,
   treatmentId: null,
   date: null,
   time: null,
@@ -62,8 +62,8 @@ export const useBookingStore = create<BookingState>()(
     (set, get) => ({
       ...initialState,
 
-      selectDentist: (id) =>
-        set((state) => ({ dentistId: id, ...advanceTo(state, "treatment") })),
+      selectPractitioner: (id) =>
+        set((state) => ({ practitionerId: id, ...advanceTo(state, "treatment") })),
 
       selectTreatment: (id) =>
         set((state) => ({ treatmentId: id, ...advanceTo(state, "date") })),

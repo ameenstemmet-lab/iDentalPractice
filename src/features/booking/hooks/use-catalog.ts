@@ -2,22 +2,22 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import { getDentistsAction, getTreatmentsAction } from "../actions/catalog-actions";
+import { getPractitionersAction, getTreatmentsAction } from "../actions/catalog-actions";
 
-export function useDentistsQuery(practiceId: string | null) {
+export function usePractitionersQuery(practiceId: string | null) {
   return useQuery({
-    queryKey: ["booking", "dentists", practiceId],
-    queryFn: () => getDentistsAction(practiceId!),
+    queryKey: ["booking", "practitioners", practiceId],
+    queryFn: () => getPractitionersAction(practiceId!),
     enabled: !!practiceId,
     staleTime: 60_000,
   });
 }
 
-export function useTreatmentsQuery(practiceId: string | null) {
+export function useTreatmentsQuery(practiceId: string | null, practitionerId: string | null) {
   return useQuery({
-    queryKey: ["booking", "treatments", practiceId],
-    queryFn: () => getTreatmentsAction(practiceId!),
-    enabled: !!practiceId,
+    queryKey: ["booking", "treatments", practiceId, practitionerId],
+    queryFn: () => getTreatmentsAction(practiceId!, practitionerId!),
+    enabled: !!practiceId && !!practitionerId,
     staleTime: 60_000,
   });
 }

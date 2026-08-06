@@ -17,7 +17,7 @@ const NOW = new Date("2026-08-06T08:00:00.000Z");
 const PAYLOAD: AppointmentSyncPayload = {
   appointmentId: "appt-1",
   practiceId: "practice-1",
-  dentistId: "dentist-1",
+  practitionerId: "practitioner-1",
   summary: "Cleaning — Jane Doe",
   start: new Date("2026-08-10T09:00:00.000Z"),
   end: new Date("2026-08-10T09:30:00.000Z"),
@@ -34,7 +34,7 @@ async function buildHarness() {
 
   const connection = await repository.createConnection({
     practiceId: "practice-1",
-    dentistId: "dentist-1",
+    practitionerId: "practitioner-1",
     accountEmail: "admin@practice.example",
     calendarId: "primary",
     calendarSummary: "Main",

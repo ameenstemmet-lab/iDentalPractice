@@ -4,7 +4,7 @@ import { ConflictDetector } from "./conflict-detector-service";
 import { timeStringToMinutes, windowToInterval } from "../utils/time-math";
 
 export interface BookingRequest {
-  dentistId: string;
+  practitionerId: string;
   date: ISODate;
   timezone: TimeZone;
   startTime: TimeString;
@@ -25,8 +25,8 @@ export interface BookingValidationResult {
 const REJECTION_MESSAGES: Record<BookingRejectionReason, string> = {
   invalid_duration: "Appointment duration must be a positive number of minutes.",
   past: "This time has already passed.",
-  outside_working_hours: "This time is outside the dentist's working hours.",
-  break: "This time falls during the dentist's break.",
+  outside_working_hours: "This time is outside the practitioner's working hours.",
+  break: "This time falls during the practitioner's break.",
   blocked_period: "This time is blocked off and unavailable.",
   booked: "This time is already booked.",
 };
@@ -58,7 +58,7 @@ export class BookingRulesService {
     );
 
     const result = await this.conflictDetector.check({
-      dentistId: request.dentistId,
+      practitionerId: request.practitionerId,
       date: request.date,
       timezone: request.timezone,
       interval,

@@ -40,7 +40,7 @@ function isFullyBooked(day: DayAvailability | undefined): boolean {
 
 export function ChooseDateStep() {
   const { timezone } = useBookingPractice();
-  const dentistId = useBookingStore((s) => s.dentistId);
+  const practitionerId = useBookingStore((s) => s.practitionerId);
   const date = useBookingStore((s) => s.date);
   const selectDate = useBookingStore((s) => s.selectDate);
   const { treatment } = useBookingSelection();
@@ -49,10 +49,10 @@ export function ChooseDateStep() {
   const { from, to } = getBookingWindowBounds();
 
   const { data: range } = useQuery({
-    queryKey: ["booking", "range-availability", dentistId, timezone, durationMinutes],
+    queryKey: ["booking", "range-availability", practitionerId, timezone, durationMinutes],
     queryFn: () =>
-      getRangeAvailabilityAction(dentistId!, toISODate(from), BOOKING_WINDOW_DAYS, timezone, durationMinutes),
-    enabled: !!dentistId,
+      getRangeAvailabilityAction(practitionerId!, toISODate(from), BOOKING_WINDOW_DAYS, timezone, durationMinutes),
+    enabled: !!practitionerId,
     staleTime: 30_000,
   });
 
@@ -75,8 +75,8 @@ export function ChooseDateStep() {
   }
 
   async function jumpToNextAvailable() {
-    if (!pendingFullDate || !dentistId) return;
-    const next = await findNextAvailableAction(dentistId, toISODate(pendingFullDate), timezone, durationMinutes);
+    if (!pendingFullDate || !practitionerId) return;
+    const next = await findNextAvailableAction(practitionerId, toISODate(pendingFullDate), timezone, durationMinutes);
     if (next) {
       setPendingFullDate(null);
       selectDate(next.date);

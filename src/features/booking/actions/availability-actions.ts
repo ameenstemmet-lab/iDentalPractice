@@ -10,13 +10,13 @@ function buildAvailabilityService() {
   return new AvailabilityService(repository);
 }
 
-/** Which days of the week (0=Sunday..6=Saturday) this dentist works at all — for the calendar's disabled-day rendering. */
-export async function getWorkingDaysOfWeekAction(dentistId: string): Promise<number[]> {
+/** Which days of the week (0=Sunday..6=Saturday) this practitioner works at all — for the calendar's disabled-day rendering. */
+export async function getWorkingDaysOfWeekAction(practitionerId: string): Promise<number[]> {
   const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase
-    .from("dentist_working_hours")
+    .from("practitioner_working_hours")
     .select("day_of_week")
-    .eq("dentist_id", dentistId)
+    .eq("practitioner_id", practitionerId)
     .eq("is_working", true);
   if (error) throw new Error(`getWorkingDaysOfWeekAction failed: ${error.message}`);
   return ((data ?? []) as unknown as Array<{ day_of_week: number }>).map((r) => r.day_of_week);
@@ -29,13 +29,13 @@ export interface DateAvailabilitySummary {
 
 /** Used when the user taps a calendar date — is it open, and if so, is every slot already taken? */
 export async function checkDateAvailabilityAction(
-  dentistId: string,
+  practitionerId: string,
   date: string,
   timezone: string,
   durationMinutes: number
 ): Promise<DateAvailabilitySummary> {
   const service = buildAvailabilityService();
-  const day = await service.getDayAvailability({ dentistId, date, timezone, durationMinutes });
+  const day = await service.getDayAvailability({ practitionerId, date, timezone, durationMinutes });
   return {
     closed: !day.isWorkingDay,
     fullyBooked: day.isWorkingDay && day.slots.length > 0 && day.slots.every((s) => !s.available),
@@ -44,13 +44,13 @@ export async function checkDateAvailabilityAction(
 
 /** The full slot grid for the Choose a Time step. */
 export async function getTimeSlotsAction(
-  dentistId: string,
+  practitionerId: string,
   date: string,
   timezone: string,
   durationMinutes: number
 ): Promise<DayAvailability> {
   const service = buildAvailabilityService();
-  const day = await service.getDayAvailability({ dentistId, date, timezone, durationMinutes });
+  const day = await service.getDayAvailability({ practitionerId, date, timezone, durationMinutes });
   return {
     date: day.date,
     closed: !day.isWorkingDay,
@@ -60,14 +60,14 @@ export async function getTimeSlotsAction(
 
 /** Fully-booked/closed lookup for every date in the visible booking window — powers the calendar's disabled/"full" styling without a round trip per cell. */
 export async function getRangeAvailabilityAction(
-  dentistId: string,
+  practitionerId: string,
   fromDate: string,
   days: number,
   timezone: string,
   durationMinutes: number
 ): Promise<DayAvailability[]> {
   const service = buildAvailabilityService();
-  const range = await service.getRangeAvailability({ dentistId, fromDate, days, timezone, durationMinutes });
+  const range = await service.getRangeAvailability({ practitionerId, fromDate, days, timezone, durationMinutes });
   return range.map((day) => ({
     date: day.date,
     closed: !day.isWorkingDay,
@@ -81,12 +81,12 @@ export interface NextAvailable {
 }
 
 export async function findNextAvailableAction(
-  dentistId: string,
+  practitionerId: string,
   fromDate: string,
   timezone: string,
   durationMinutes: number
 ): Promise<NextAvailable | null> {
   const service = buildAvailabilityService();
-  const result = await service.findNextAvailable({ dentistId, fromDate, timezone, durationMinutes });
+  const result = await service.findNextAvailable({ practitionerId, fromDate, timezone, durationMinutes });
   return result ? { date: result.date, time: result.time } : null;
 }

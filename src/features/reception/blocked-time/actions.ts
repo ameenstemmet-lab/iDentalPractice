@@ -5,20 +5,20 @@ import type { BlockedPeriod, BlockedPeriodInput } from "./types";
 
 interface BlockedPeriodRow {
   id: string;
-  dentist_id: string;
+  practitioner_id: string;
   starts_at: string;
   ends_at: string;
   reason: string | null;
-  dentists: { first_name: string; last_name: string } | null;
+  practitioners: { first_name: string; last_name: string } | null;
 }
 
-const SELECT = "id, dentist_id, starts_at, ends_at, reason, dentists(first_name, last_name)";
+const SELECT = "id, practitioner_id, starts_at, ends_at, reason, practitioners(first_name, last_name)";
 
 function toBlockedPeriod(row: BlockedPeriodRow): BlockedPeriod {
   return {
     id: row.id,
-    dentistId: row.dentist_id,
-    dentistName: row.dentists ? `${row.dentists.first_name} ${row.dentists.last_name}` : "—",
+    practitionerId: row.practitioner_id,
+    practitionerName: row.practitioners ? `${row.practitioners.first_name} ${row.practitioners.last_name}` : "—",
     startsAt: row.starts_at,
     endsAt: row.ends_at,
     reason: row.reason,
@@ -42,7 +42,7 @@ export async function createBlockedPeriod(practiceId: string, input: BlockedPeri
     .from("blocked_periods")
     .insert({
       practice_id: practiceId,
-      dentist_id: input.dentistId,
+      practitioner_id: input.practitionerId,
       starts_at: input.startsAt,
       ends_at: input.endsAt,
       reason: input.reason || null,

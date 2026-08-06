@@ -4,7 +4,7 @@ import { createGoogleCalendarServices } from "@/features/integrations/google-cal
 
 /**
  * Redirects the browser to Google's consent screen. `practiceId` (and
- * optionally `dentistId`) travel in the signed `state` parameter, verified
+ * optionally `practitionerId`) travel in the signed `state` parameter, verified
  * on callback.
  *
  * TODO(auth): once a login system exists, this must verify the caller is
@@ -13,7 +13,7 @@ import { createGoogleCalendarServices } from "@/features/integrations/google-cal
  */
 export async function GET(request: NextRequest) {
   const practiceId = request.nextUrl.searchParams.get("practiceId");
-  const dentistId = request.nextUrl.searchParams.get("dentistId");
+  const practitionerId = request.nextUrl.searchParams.get("practitionerId");
 
   if (!practiceId) {
     return NextResponse.json({ error: "practiceId query parameter is required" }, { status: 400 });
@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const { oauthService } = createGoogleCalendarServices();
-    const authorizeUrl = oauthService.buildAuthorizeUrl({ practiceId, dentistId: dentistId || null });
+    const authorizeUrl = oauthService.buildAuthorizeUrl({ practiceId, practitionerId: practitionerId || null });
     return NextResponse.redirect(authorizeUrl);
   } catch (err) {
     return NextResponse.json(

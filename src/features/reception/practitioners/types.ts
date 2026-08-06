@@ -1,9 +1,10 @@
-export interface Dentist {
+export interface Practitioner {
   id: string;
   practiceId: string;
   firstName: string;
   lastName: string;
   title: string | null;
+  profession: string;
   email: string | null;
   cellphone: string | null;
   colourCode: string;
@@ -11,10 +12,11 @@ export interface Dentist {
   active: boolean;
 }
 
-export interface DentistInput {
+export interface PractitionerInput {
   firstName: string;
   lastName: string;
   title?: string;
+  profession: string;
   email?: string;
   cellphone?: string;
   colourCode: string;

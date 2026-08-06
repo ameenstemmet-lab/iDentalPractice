@@ -8,12 +8,12 @@ const DATE = "2026-08-06"; // Thursday
 
 function baseContext(overrides: Partial<SchedulingContext> = {}): SchedulingContext {
   return {
-    dentistId: "d1",
+    practitionerId: "d1",
     date: DATE,
     timezone: TZ,
     durationMinutes: 30,
     workingHours: {
-      dentistId: "d1",
+      practitionerId: "d1",
       dayOfWeek: 4,
       isWorking: true,
       window: { startMinutes: 8 * 60, endMinutes: 17 * 60 },
@@ -42,7 +42,7 @@ describe("generateDailySlots — the spec's own example", () => {
 describe("generateDailySlots — non-working day", () => {
   it("returns no slots when isWorking is false", () => {
     const slots = generateDailySlots(
-      baseContext({ workingHours: { dentistId: "d1", dayOfWeek: 4, isWorking: false, window: null } })
+      baseContext({ workingHours: { practitionerId: "d1", dayOfWeek: 4, isWorking: false, window: null } })
     );
     expect(slots).toEqual([]);
   });
@@ -58,7 +58,7 @@ describe("generateDailySlots — treatment longer than the working window", () =
     const slots = generateDailySlots(
       baseContext({
         workingHours: {
-          dentistId: "d1",
+          practitionerId: "d1",
           dayOfWeek: 4,
           isWorking: true,
           window: { startMinutes: 8 * 60, endMinutes: 8 * 60 + 15 },
@@ -75,7 +75,7 @@ describe("generateDailySlots — custom slot interval", () => {
     const slots = generateDailySlots(
       baseContext({
         workingHours: {
-          dentistId: "d1",
+          practitionerId: "d1",
           dayOfWeek: 4,
           isWorking: true,
           window: { startMinutes: 8 * 60, endMinutes: 9 * 60 },
@@ -93,7 +93,7 @@ describe("generateDailySlots — breaks removed", () => {
   it("marks slots overlapping a lunch break unavailable, and leaves the rest untouched", () => {
     const slots = generateDailySlots(
       baseContext({
-        breaks: [{ dentistId: "d1", dayOfWeek: 4, window: { startMinutes: 12 * 60, endMinutes: 13 * 60 } }],
+        breaks: [{ practitionerId: "d1", dayOfWeek: 4, window: { startMinutes: 12 * 60, endMinutes: 13 * 60 } }],
       })
     );
     const noon = slots.find((s) => s.time === "12:00")!;
@@ -111,7 +111,7 @@ describe("generateDailySlots — blocked periods removed", () => {
   it("marks slots inside a blocked period unavailable", () => {
     const blockedInterval = windowToInterval({ startMinutes: 14 * 60, endMinutes: 16 * 60 }, DATE, TZ);
     const slots = generateDailySlots(
-      baseContext({ blockedPeriods: [{ id: "b1", dentistId: "d1", interval: blockedInterval }] })
+      baseContext({ blockedPeriods: [{ id: "b1", practitionerId: "d1", interval: blockedInterval }] })
     );
     const fourteenThirty = slots.find((s) => s.time === "14:30")!;
     expect(fourteenThirty.available).toBe(false);
@@ -124,7 +124,7 @@ describe("generateDailySlots — double booking prevented", () => {
     const bookedInterval = windowToInterval({ startMinutes: 9 * 60, endMinutes: 9 * 60 + 30 }, DATE, TZ);
     const slots = generateDailySlots(
       baseContext({
-        bookedAppointments: [{ id: "a1", dentistId: "d1", interval: bookedInterval, status: "confirmed" }],
+        bookedAppointments: [{ id: "a1", practitionerId: "d1", interval: bookedInterval, status: "confirmed" }],
       })
     );
     const nine = slots.find((s) => s.time === "09:00")!;
@@ -136,7 +136,7 @@ describe("generateDailySlots — double booking prevented", () => {
     const bookedInterval = windowToInterval({ startMinutes: 9 * 60, endMinutes: 9 * 60 + 30 }, DATE, TZ);
     const slots = generateDailySlots(
       baseContext({
-        bookedAppointments: [{ id: "a1", dentistId: "d1", interval: bookedInterval, status: "cancelled" }],
+        bookedAppointments: [{ id: "a1", practitionerId: "d1", interval: bookedInterval, status: "cancelled" }],
       })
     );
     expect(slots.find((s) => s.time === "09:00")!.available).toBe(true);
@@ -178,11 +178,11 @@ describe("generateWeeklySlots", () => {
   it("produces one DayAvailability per context, correctly flagging non-working days", () => {
     const monday = baseContext({
       date: "2026-08-10",
-      workingHours: { dentistId: "d1", dayOfWeek: 1, isWorking: true, window: { startMinutes: 8 * 60, endMinutes: 12 * 60 } },
+      workingHours: { practitionerId: "d1", dayOfWeek: 1, isWorking: true, window: { startMinutes: 8 * 60, endMinutes: 12 * 60 } },
     });
     const sunday = baseContext({
       date: "2026-08-09",
-      workingHours: { dentistId: "d1", dayOfWeek: 0, isWorking: false, window: null },
+      workingHours: { practitionerId: "d1", dayOfWeek: 0, isWorking: false, window: null },
     });
 
     const result = generateWeeklySlots([sunday, monday]);

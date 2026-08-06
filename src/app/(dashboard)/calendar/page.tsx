@@ -14,7 +14,7 @@ import { MonthView } from "@/components/reception/calendar/month-view";
 import { usePracticeContext } from "@/components/reception/practice-context";
 import { useReceptionUiStore } from "@/features/reception/shared/ui-store";
 import { useAppointments, useUpdateAppointmentStatus } from "@/features/reception/appointments/queries";
-import { useDentists } from "@/features/reception/dentists/queries";
+import { usePractitioners } from "@/features/reception/practitioners/queries";
 import { addDaysToISODate, getDayOfWeek } from "@/features/scheduling/utils/time-math";
 
 function todayISO(): string {
@@ -29,7 +29,7 @@ export default function CalendarPage() {
   const { practiceId } = usePracticeContext();
   const { calendarView, setCalendarView } = useReceptionUiStore();
   const [anchorDate, setAnchorDate] = React.useState(todayISO());
-  const dentists = useDentists(practiceId ?? "");
+  const practitioners = usePractitioners(practiceId ?? "");
   const updateStatus = useUpdateAppointmentStatus();
 
   const { fromDate, toDate } =
@@ -63,7 +63,7 @@ export default function CalendarPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">Calendar</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Colour-coded by dentist.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Colour-coded by practitioner.</p>
         </div>
 
         <Tabs value={calendarView} onValueChange={(v) => setCalendarView(v as typeof calendarView)}>
@@ -91,7 +91,7 @@ export default function CalendarPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {dentists.data?.map((d) => (
+          {practitioners.data?.map((d) => (
             <Badge key={d.id} variant="outline" className="gap-1.5">
               <span aria-hidden className="size-2 rounded-full" style={{ backgroundColor: d.colourCode }} />
               {d.firstName} {d.lastName}
@@ -110,7 +110,12 @@ export default function CalendarPage() {
       {appointments.isLoading ? (
         <Skeleton className="h-[600px] w-full" />
       ) : calendarView === "day" ? (
-        <TimeGridView fromDate={fromDate} days={1} appointments={appointments.data?.appointments ?? []} />
+        <TimeGridView
+          fromDate={fromDate}
+          days={1}
+          appointments={appointments.data?.appointments ?? []}
+          practitioners={practitioners.data}
+        />
       ) : calendarView === "week" ? (
         <TimeGridView fromDate={fromDate} days={7} appointments={appointments.data?.appointments ?? []} />
       ) : calendarView === "month" ? (

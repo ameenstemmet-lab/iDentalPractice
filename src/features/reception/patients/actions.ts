@@ -127,7 +127,7 @@ export async function getPatientAppointments(patientId: string): Promise<Patient
   const { data, error } = await supabase
     .from("appointments")
     .select(
-      "id, appointment_date, start_time, end_time, status, dentists(first_name, last_name), treatment_types(treatment_name)"
+      "id, appointment_date, start_time, end_time, status, practitioners(first_name, last_name), treatment_types(treatment_name)"
     )
     .eq("patient_id", patientId)
     .order("appointment_date", { ascending: false });
@@ -142,7 +142,7 @@ export async function getPatientAppointments(patientId: string): Promise<Patient
         start_time: string;
         end_time: string;
         status: AppointmentStatus;
-        dentists: { first_name: string; last_name: string } | null;
+        practitioners: { first_name: string; last_name: string } | null;
         treatment_types: { treatment_name: string } | null;
       }>
     ).map((row) => ({
@@ -151,7 +151,7 @@ export async function getPatientAppointments(patientId: string): Promise<Patient
     startTime: row.start_time,
     endTime: row.end_time,
     status: row.status,
-    dentistName: row.dentists ? `${row.dentists.first_name} ${row.dentists.last_name}` : "—",
+    practitionerName: row.practitioners ? `${row.practitioners.first_name} ${row.practitioners.last_name}` : "—",
     treatmentName: row.treatment_types?.treatment_name ?? "—",
   })));
 }

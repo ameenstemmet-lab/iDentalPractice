@@ -68,7 +68,7 @@ export function MonthView({
                   <span
                     key={appt.id}
                     className="truncate rounded px-1 py-0.5 text-[10px] leading-tight"
-                    style={{ backgroundColor: `${appt.dentistColour}22`, color: appt.dentistColour }}
+                    style={{ backgroundColor: `${appt.practitionerColour}22`, color: appt.practitionerColour }}
                   >
                     {appt.startTime} {appt.patientName}
                   </span>

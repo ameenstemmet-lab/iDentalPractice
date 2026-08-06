@@ -130,7 +130,7 @@ function PracticeDetailsForm({ practiceId }: { practiceId: string }) {
         <CardHeader>
           <CardTitle>Business hours &amp; timezone</CardTitle>
           <CardDescription>
-            Per-dentist working hours are set on the{" "}
+            Per-practitioner working hours are set on the{" "}
             <a href="/working-hours" className="text-primary hover:underline">
               Working Hours
             </a>{" "}

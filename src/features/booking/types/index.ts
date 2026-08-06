@@ -1,8 +1,9 @@
-export interface Dentist {
+export interface Practitioner {
   id: string;
   firstName: string;
   lastName: string;
   title: string;
+  profession: string;
   qualification: string;
   specialInterests: string[];
   yearsOfExperience: number;
@@ -38,7 +39,7 @@ export interface PatientDetails {
 }
 
 export const BOOKING_STEPS = [
-  "dentist",
+  "practitioner",
   "treatment",
   "date",
   "time",

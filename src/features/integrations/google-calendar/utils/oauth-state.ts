@@ -1,7 +1,7 @@
 /**
  * Stateless, signed OAuth `state` parameter — CSRF protection without a
  * database round trip. Encodes which practice (and optionally which
- * dentist) initiated the connect flow, so the callback route knows where
+ * practitioner) initiated the connect flow, so the callback route knows where
  * to attach the resulting connection, and rejects anything it didn't
  * itself issue or that's expired.
  */
@@ -15,12 +15,12 @@ function sign(data: string, secret: string): string {
 }
 
 export function createOAuthState(
-  params: { practiceId: string; dentistId: string | null },
+  params: { practiceId: string; practitionerId: string | null },
   secret: string
 ): string {
   const payload: OAuthStatePayload = {
     practiceId: params.practiceId,
-    dentistId: params.dentistId,
+    practitionerId: params.practitionerId,
     nonce: randomBytes(16).toString("hex"),
     issuedAt: Date.now(),
   };

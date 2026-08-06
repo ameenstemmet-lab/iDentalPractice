@@ -8,7 +8,7 @@ const TZ = "Africa/Johannesburg";
 
 // Mon–Fri, 09:00–10:00 (a deliberately small window so "fully booked" is easy to set up).
 const workingHours: WorkingHoursRecord[] = [1, 2, 3, 4, 5].map((dayOfWeek) => ({
-  dentistId: "d1",
+  practitionerId: "d1",
   dayOfWeek: dayOfWeek as WorkingHoursRecord["dayOfWeek"],
   isWorking: true,
   window: { startMinutes: 9 * 60, endMinutes: 10 * 60 },
@@ -22,7 +22,7 @@ describe("AvailabilityService.getDayAvailability", () => {
     const service = new AvailabilityService(repository);
 
     const result = await service.getDayAvailability({
-      dentistId: "d1",
+      practitionerId: "d1",
       date: "2026-08-10", // Monday
       timezone: TZ,
       durationMinutes: 30,
@@ -39,7 +39,7 @@ describe("AvailabilityService.getDayAvailability", () => {
     const service = new AvailabilityService(repository);
 
     const result = await service.getDayAvailability({
-      dentistId: "d1",
+      practitionerId: "d1",
       date: "2026-08-08", // Saturday — no working-hours record seeded
       timezone: TZ,
       durationMinutes: 30,
@@ -57,7 +57,7 @@ describe("AvailabilityService.getRangeAvailability", () => {
     const service = new AvailabilityService(repository);
 
     const result = await service.getRangeAvailability({
-      dentistId: "d1",
+      practitionerId: "d1",
       fromDate: "2026-08-08", // Sat, Sun, Mon
       days: 3,
       timezone: TZ,
@@ -78,13 +78,13 @@ describe("AvailabilityService.findNextAvailable — the spec's own example, end 
     const bothSlotsBooked: BookedAppointment[] = [
       {
         id: "a1",
-        dentistId: "d1",
+        practitionerId: "d1",
         interval: windowToInterval({ startMinutes: 9 * 60, endMinutes: 9 * 60 + 30 }, "2026-08-10", TZ),
         status: "booked",
       },
       {
         id: "a2",
-        dentistId: "d1",
+        practitionerId: "d1",
         interval: windowToInterval({ startMinutes: 9 * 60 + 30, endMinutes: 10 * 60 }, "2026-08-10", TZ),
         status: "booked",
       },
@@ -93,7 +93,7 @@ describe("AvailabilityService.findNextAvailable — the spec's own example, end 
     const service = new AvailabilityService(repo);
 
     const result = await service.findNextAvailable({
-      dentistId: "d1",
+      practitionerId: "d1",
       fromDate: "2026-08-10", // Monday, fully booked
       timezone: TZ,
       durationMinutes: 30,
@@ -105,11 +105,11 @@ describe("AvailabilityService.findNextAvailable — the spec's own example, end 
   });
 
   it("returns null when the entire search window is exhausted", async () => {
-    const repo = new InMemorySchedulingRepository({ workingHours: [] }); // dentist never works
+    const repo = new InMemorySchedulingRepository({ workingHours: [] }); // practitioner never works
     const service = new AvailabilityService(repo);
 
     const result = await service.findNextAvailable({
-      dentistId: "d1",
+      practitionerId: "d1",
       fromDate: "2026-08-10",
       timezone: TZ,
       durationMinutes: 30,

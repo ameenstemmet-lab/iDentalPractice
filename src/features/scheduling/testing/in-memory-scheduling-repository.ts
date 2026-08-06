@@ -26,35 +26,35 @@ export class InMemorySchedulingRepository implements SchedulingRepository {
     } = {}
   ) {}
 
-  async getWorkingHours(dentistId: string, dayOfWeek: DayOfWeek): Promise<WorkingHoursRecord | null> {
+  async getWorkingHours(practitionerId: string, dayOfWeek: DayOfWeek): Promise<WorkingHoursRecord | null> {
     return (
-      this.seed.workingHours?.find((w) => w.dentistId === dentistId && w.dayOfWeek === dayOfWeek) ?? null
+      this.seed.workingHours?.find((w) => w.practitionerId === practitionerId && w.dayOfWeek === dayOfWeek) ?? null
     );
   }
 
-  async getBreaks(dentistId: string, dayOfWeek: DayOfWeek): Promise<BreakRecord[]> {
-    return (this.seed.breaks ?? []).filter((b) => b.dentistId === dentistId && b.dayOfWeek === dayOfWeek);
+  async getBreaks(practitionerId: string, dayOfWeek: DayOfWeek): Promise<BreakRecord[]> {
+    return (this.seed.breaks ?? []).filter((b) => b.practitionerId === practitionerId && b.dayOfWeek === dayOfWeek);
   }
 
   async getBlockedPeriods(
-    dentistId: string,
+    practitionerId: string,
     date: ISODate,
     timezone: TimeZone
   ): Promise<BlockedPeriodRecord[]> {
     const { start, end } = dayBounds(date, timezone);
     return (this.seed.blockedPeriods ?? []).filter(
-      (b) => b.dentistId === dentistId && b.interval.start < end && b.interval.end > start
+      (b) => b.practitionerId === practitionerId && b.interval.start < end && b.interval.end > start
     );
   }
 
   async getBookedAppointments(
-    dentistId: string,
+    practitionerId: string,
     date: ISODate,
     timezone: TimeZone
   ): Promise<BookedAppointment[]> {
     const { start, end } = dayBounds(date, timezone);
     return (this.seed.appointments ?? []).filter(
-      (a) => a.dentistId === dentistId && a.interval.start < end && a.interval.end > start
+      (a) => a.practitionerId === practitionerId && a.interval.start < end && a.interval.end > start
     );
   }
 }

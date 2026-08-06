@@ -18,7 +18,7 @@ export function Timeline({ items }: { items: RecentActivityItem[] }) {
           <span aria-hidden className="relative z-10 mt-1.5 size-1.5 shrink-0 rounded-full bg-primary" />
           <div className="flex min-w-0 flex-1 flex-col gap-0.5">
             <p className="text-sm text-foreground">
-              <span className="font-medium">{item.patientName}</span> booked with {item.dentistName}
+              <span className="font-medium">{item.patientName}</span> booked with {item.practitionerName}
             </p>
             <p className="text-xs text-muted-foreground">
               {item.treatmentName} · {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}

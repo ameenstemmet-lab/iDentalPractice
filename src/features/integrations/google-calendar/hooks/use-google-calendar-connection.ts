@@ -14,10 +14,10 @@ import type { CalendarConnection, CalendarListEntry } from "../types";
 
 export interface UseGoogleCalendarConnectionParams {
   practiceId: string;
-  dentistId?: string | null;
+  practitionerId?: string | null;
 }
 
-export function useGoogleCalendarConnection({ practiceId, dentistId = null }: UseGoogleCalendarConnectionParams) {
+export function useGoogleCalendarConnection({ practiceId, practitionerId = null }: UseGoogleCalendarConnectionParams) {
   const [connection, setConnection] = React.useState<CalendarConnection | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
@@ -27,13 +27,13 @@ export function useGoogleCalendarConnection({ practiceId, dentistId = null }: Us
     setIsLoading(true);
     setError(null);
     try {
-      setConnection(await getConnectionStatusAction(practiceId, dentistId));
+      setConnection(await getConnectionStatusAction(practiceId, practitionerId));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load calendar connection status.");
     } finally {
       setIsLoading(false);
     }
-  }, [practiceId, dentistId]);
+  }, [practiceId, practitionerId]);
 
   React.useEffect(() => {
     refetch();
@@ -41,9 +41,9 @@ export function useGoogleCalendarConnection({ practiceId, dentistId = null }: Us
 
   const connectUrl = React.useMemo(() => {
     const params = new URLSearchParams({ practiceId });
-    if (dentistId) params.set("dentistId", dentistId);
+    if (practitionerId) params.set("practitionerId", practitionerId);
     return `/api/integrations/google-calendar/oauth/start?${params.toString()}`;
-  }, [practiceId, dentistId]);
+  }, [practiceId, practitionerId]);
 
   const disconnect = React.useCallback(async () => {
     if (!connection) return;

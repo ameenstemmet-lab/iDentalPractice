@@ -18,10 +18,10 @@ interface AppointmentRow {
   notes: string | null;
   google_calendar_event_id: string | null;
   patient_id: string;
-  dentist_id: string;
+  practitioner_id: string;
   treatment_id: string;
   patients: { first_name: string; last_name: string; cellphone: string | null } | null;
-  dentists: { first_name: string; last_name: string; colour_code: string } | null;
+  practitioners: { first_name: string; last_name: string; colour_code: string } | null;
   treatment_types: { treatment_name: string; price: number } | null;
 }
 
@@ -38,9 +38,9 @@ function toListItem(row: AppointmentRow): AppointmentListItem {
     patientId: row.patient_id,
     patientName: row.patients ? `${row.patients.first_name} ${row.patients.last_name}` : "—",
     patientCellphone: row.patients?.cellphone ?? null,
-    dentistId: row.dentist_id,
-    dentistName: row.dentists ? `${row.dentists.first_name} ${row.dentists.last_name}` : "—",
-    dentistColour: row.dentists?.colour_code ?? "#64748b",
+    practitionerId: row.practitioner_id,
+    practitionerName: row.practitioners ? `${row.practitioners.first_name} ${row.practitioners.last_name}` : "—",
+    practitionerColour: row.practitioners?.colour_code ?? "#64748b",
     treatmentId: row.treatment_id,
     treatmentName: row.treatment_types?.treatment_name ?? "—",
     treatmentPrice: row.treatment_types?.price ?? 0,
@@ -48,14 +48,14 @@ function toListItem(row: AppointmentRow): AppointmentListItem {
 }
 
 const SELECT =
-  "id, practice_id, appointment_date, start_time, end_time, status, notes, google_calendar_event_id, patient_id, dentist_id, treatment_id, patients(first_name, last_name, cellphone), dentists(first_name, last_name, colour_code), treatment_types(treatment_name, price)";
+  "id, practice_id, appointment_date, start_time, end_time, status, notes, google_calendar_event_id, patient_id, practitioner_id, treatment_id, patients(first_name, last_name, cellphone), practitioners(first_name, last_name, colour_code), treatment_types(treatment_name, price)";
 
 export async function listAppointments(filters: ListAppointmentsFilters): Promise<ListAppointmentsResult> {
   const {
     practiceId,
     search,
     status,
-    dentistId,
+    practitionerId,
     fromDate,
     toDate,
     page = 1,
@@ -67,7 +67,7 @@ export async function listAppointments(filters: ListAppointmentsFilters): Promis
   let query = supabase.from("appointments").select(SELECT, { count: "exact" }).eq("practice_id", practiceId);
 
   if (status && status !== "all") query = query.eq("status", status);
-  if (dentistId && dentistId !== "all") query = query.eq("dentist_id", dentistId);
+  if (practitionerId && practitionerId !== "all") query = query.eq("practitioner_id", practitionerId);
   if (fromDate) query = query.gte("appointment_date", fromDate);
   if (toDate) query = query.lte("appointment_date", toDate);
 
@@ -141,7 +141,7 @@ export async function rescheduleAppointment(input: RescheduleInput): Promise<voi
 
   if (error) {
     if (error.message.includes("appointments_no_overlap")) {
-      throw new Error("That time overlaps another appointment for this dentist.");
+      throw new Error("That time overlaps another appointment for this practitioner.");
     }
     throw new Error(`rescheduleAppointment failed: ${error.message}`);
   }

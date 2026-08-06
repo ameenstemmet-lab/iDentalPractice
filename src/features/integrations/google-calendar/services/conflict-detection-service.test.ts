@@ -20,7 +20,7 @@ async function buildHarness() {
 
   const connection = await repository.createConnection({
     practiceId: "practice-1",
-    dentistId: "dentist-1",
+    practitionerId: "practitioner-1",
     accountEmail: "admin@practice.example",
     calendarId: "primary",
     calendarSummary: "Main",
@@ -43,7 +43,7 @@ describe("ConflictDetectionService.findExternalConflicts", () => {
     const oauthClient = new GoogleOAuthClient({ clientId: "id", clientSecret: "secret", redirectUri: "https://x" });
     const service = new ConflictDetectionService(repository, new TokenRefreshService(repository, oauthClient, KEY), provider);
 
-    const result = await service.findExternalConflicts("practice-1", "dentist-1", RANGE, NOW);
+    const result = await service.findExternalConflicts("practice-1", "practitioner-1", RANGE, NOW);
 
     expect(result).toEqual({ hasConflict: false, conflictingEvents: [] });
   });
@@ -52,14 +52,14 @@ describe("ConflictDetectionService.findExternalConflicts", () => {
     const { provider, service } = await buildHarness();
     provider.seedExternalEvent({
       id: "ext-1",
-      summary: "Dentist's own doctor appointment",
+      summary: "Practitioner's own doctor appointment",
       start: new Date("2026-08-10T10:00:00.000Z"),
       end: new Date("2026-08-10T11:00:00.000Z"),
       status: "confirmed",
       isOwnedByUs: false,
     });
 
-    const result = await service.findExternalConflicts("practice-1", "dentist-1", RANGE, NOW);
+    const result = await service.findExternalConflicts("practice-1", "practitioner-1", RANGE, NOW);
 
     expect(result.hasConflict).toBe(true);
     expect(result.conflictingEvents).toHaveLength(1);
@@ -80,7 +80,7 @@ describe("ConflictDetectionService.findExternalConflicts", () => {
       }
     );
 
-    const result = await service.findExternalConflicts("practice-1", "dentist-1", RANGE, NOW);
+    const result = await service.findExternalConflicts("practice-1", "practitioner-1", RANGE, NOW);
 
     expect(result).toEqual({ hasConflict: false, conflictingEvents: [] });
   });
@@ -96,12 +96,12 @@ describe("ConflictDetectionService.findExternalConflicts", () => {
       isOwnedByUs: false,
     });
 
-    const result = await service.findExternalConflicts("practice-1", "dentist-1", RANGE, NOW);
+    const result = await service.findExternalConflicts("practice-1", "practitioner-1", RANGE, NOW);
 
     expect(result.hasConflict).toBe(false);
   });
 
-  it("falls back to the practice-wide connection when no dentist-specific one exists", async () => {
+  it("falls back to the practice-wide connection when no practitioner-specific one exists", async () => {
     const repository = new InMemoryGoogleCalendarRepository();
     const provider = new FakeCalendarProvider();
     const oauthClient = new GoogleOAuthClient({ clientId: "id", clientSecret: "secret", redirectUri: "https://x" });
@@ -109,7 +109,7 @@ describe("ConflictDetectionService.findExternalConflicts", () => {
 
     const connection = await repository.createConnection({
       practiceId: "practice-1",
-      dentistId: null, // practice-wide
+      practitionerId: null, // practice-wide
       accountEmail: "front-desk@practice.example",
       calendarId: "primary",
       calendarSummary: "Front desk",
@@ -130,7 +130,7 @@ describe("ConflictDetectionService.findExternalConflicts", () => {
     });
 
     const service = new ConflictDetectionService(repository, tokenRefresh, provider);
-    const result = await service.findExternalConflicts("practice-1", "dentist-with-no-own-connection", RANGE, NOW);
+    const result = await service.findExternalConflicts("practice-1", "practitioner-with-no-own-connection", RANGE, NOW);
 
     expect(result.hasConflict).toBe(true);
   });
