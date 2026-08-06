@@ -4,12 +4,22 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ---------------------------------------------------------------------- */
+/* Tailwind theme accessors                                               */
+/* Each entry maps a Tailwind utility namespace to a runtime CSS custom   */
+/* property defined per color-scheme below (:root / .dark), so utilities  */
+/* like bg-primary, shadow-md, duration-base, ease-premium stay theme-    */
+/* aware without any JS.                                                  */
+/* ---------------------------------------------------------------------- */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
+  --text-display: 3.5rem;
+  --text-display--line-height: 1.05;
+
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -18,15 +28,19 @@
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
+
   --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -39,6 +53,9 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-surface: var(--surface);
+  --color-surface-foreground: var(--surface-foreground);
+
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -46,6 +63,26 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Elevation — overrides Tailwind's default shadow-* scale with a softer,
+     lower-opacity recipe that also adapts per color-scheme (see below). */
+  --shadow-xs: var(--elevation-xs);
+  --shadow-sm: var(--elevation-sm);
+  --shadow-md: var(--elevation-md);
+  --shadow-lg: var(--elevation-lg);
+  --shadow-xl: var(--elevation-xl);
+  --shadow-2xl: var(--elevation-2xl);
+
+  /* Motion and blur are identical across color-schemes, so they're declared
+     directly here rather than indirected through :root / .dark. */
+  --blur-glass: 20px;
+  --ease-premium: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-premium-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 320ms;
+  --duration-slower: 480ms;
 }
 
 :root {
@@ -55,7 +92,13 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
+  --surface: oklch(0.985 0 0);
+  --surface-foreground: oklch(0.145 0 0);
+
+  /* Brand primary — a single, deliberate indigo-blue. Used sparingly:
+     primary actions, links, active nav state, focus rings, chart slot 1.
+     Everything else in the system stays true neutral gray. */
+  --primary: oklch(0.45 0.19 264);
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
@@ -63,24 +106,44 @@
   --muted-foreground: oklch(0.556 0 0);
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
+
+  /* Semantic feedback — used as soft tints (bg-success/10 text-success),
+     matching the existing destructive treatment. Not solid fills. */
   --destructive: oklch(0.577 0.245 27.325);
+  --success: oklch(0.6 0.14 152);
+  --warning: oklch(0.77 0.15 80);
+
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
+  --ring: oklch(0.55 0.19 264);
+
+  /* Chart categorical order — fixed, never cycled. Validated for CVD-safe
+     adjacent contrast against this surface (see supabase/../DESIGN_SYSTEM.md). */
+  --chart-1: #2a78d6;
+  --chart-2: #eb6834;
+  --chart-3: #1baf7a;
+  --chart-4: #eda100;
+  --chart-5: #e87ba4;
+
   --radius: 0.625rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
   --sidebar-accent: oklch(0.97 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar-ring: var(--ring);
+
+  --elevation-xs: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+  --elevation-sm: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.05);
+  --elevation-md: 0 4px 10px -2px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  --elevation-lg: 0 12px 24px -6px rgb(0 0 0 / 0.09), 0 4px 8px -4px rgb(0 0 0 / 0.06);
+  --elevation-xl: 0 24px 48px -10px rgb(0 0 0 / 0.12), 0 8px 16px -8px rgb(0 0 0 / 0.07);
+  --elevation-2xl: 0 32px 64px -16px rgb(0 0 0 / 0.16);
+
+  --glass-surface: oklch(1 0 0 / 70%);
+  --glass-border: oklch(0.145 0 0 / 8%);
 }
 
 .dark {
@@ -90,41 +153,126 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
+  --surface: oklch(0.19 0 0);
+  --surface-foreground: oklch(0.985 0 0);
+
+  --primary: oklch(0.62 0.19 264);
+  --primary-foreground: oklch(0.99 0 0);
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);
   --muted-foreground: oklch(0.708 0 0);
   --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
+
   --destructive: oklch(0.704 0.191 22.216);
+  --success: oklch(0.72 0.16 152);
+  --warning: oklch(0.8 0.15 80);
+
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
+  --ring: oklch(0.62 0.19 264);
+
+  --chart-1: #3987e5;
+  --chart-2: #d95926;
+  --chart-3: #199e70;
+  --chart-4: #c98500;
+  --chart-5: #d55181;
+
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
   --sidebar-accent: oklch(0.269 0 0);
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --sidebar-ring: var(--ring);
+
+  /* Shadows barely read on dark surfaces, so elevation leans on a subtle
+     inset top highlight (edge-lit) in addition to a darker, more opaque
+     drop shadow. */
+  --elevation-xs: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --elevation-sm: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+  --elevation-md: 0 4px 10px -2px rgb(0 0 0 / 0.45), 0 2px 4px -2px rgb(0 0 0 / 0.3),
+    inset 0 1px 0 0 rgb(255 255 255 / 0.04);
+  --elevation-lg: 0 12px 24px -6px rgb(0 0 0 / 0.5), 0 4px 8px -4px rgb(0 0 0 / 0.35),
+    inset 0 1px 0 0 rgb(255 255 255 / 0.05);
+  --elevation-xl: 0 24px 48px -10px rgb(0 0 0 / 0.55), 0 8px 16px -8px rgb(0 0 0 / 0.4),
+    inset 0 1px 0 0 rgb(255 255 255 / 0.06);
+  --elevation-2xl: 0 32px 64px -16px rgb(0 0 0 / 0.6), inset 0 1px 0 0 rgb(255 255 255 / 0.06);
+
+  --glass-surface: oklch(0.145 0 0 / 65%);
+  --glass-border: oklch(1 0 0 / 8%);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
+    text-rendering: optimizeLegibility;
   }
+
   html {
     @apply font-sans;
+  }
+
+  /* Lucide's default 2px stroke reads slightly heavy at UI sizes — 1.75px
+     matches the lighter line weight of Linear/Notion-style interfaces.
+     CSS stroke-width wins over the SVG presentation attribute. */
+  svg {
+    stroke-width: 1.75px;
+  }
+
+  ::selection {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+  }
+
+  /* Thin, quiet scrollbar instead of the platform default. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--border);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--muted-foreground);
+    background-clip: content-box;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* Glass surface — used sparingly for floating chrome (command palette,
+     sticky sub-headers), never as a default card treatment. */
+  .glass {
+    background-color: var(--glass-surface);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
   }
 }
