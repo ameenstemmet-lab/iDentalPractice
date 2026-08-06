@@ -1,9 +1,11 @@
 "use server";
 
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { sendBookingConfirmationEmail } from "@/lib/email/send-booking-confirmation-email";
 import { BookingRulesService, SupabaseSchedulingRepository } from "@/features/scheduling";
 import { calculateEndTime } from "@/features/scheduling/utils/time-math";
 import { patientDetailsSchema } from "../validation/patient-details-schema";
+import { formatDateLong } from "../utils/format";
 import type { BookingReservation, PatientDetails } from "../types";
 import { getCurrentBookingPractice } from "./practice";
 
@@ -67,6 +69,46 @@ async function syncNewAppointmentToGoogleCalendar(appointmentId: string): Promis
     // Google Calendar may not be connected/configured at all — that's a
     // valid state, not a reason to fail a booking that already succeeded.
     console.warn(`Google Calendar sync skipped for appointment ${appointmentId}:`, err);
+  }
+}
+
+async function sendConfirmationEmail(params: {
+  supabase: ReturnType<typeof createSupabaseAdminClient>;
+  practiceName: string;
+  dentistId: string;
+  treatmentId: string;
+  patient: PatientDetails;
+  date: string;
+  time: string;
+  reference: string;
+}): Promise<void> {
+  try {
+    const { supabase, dentistId, treatmentId } = params;
+    const [{ data: dentist }, { data: treatment }] = await Promise.all([
+      supabase.from("dentists").select("title, first_name, last_name").eq("id", dentistId).single<{
+        title: string | null;
+        first_name: string;
+        last_name: string;
+      }>(),
+      supabase.from("treatment_types").select("treatment_name").eq("id", treatmentId).single<{
+        treatment_name: string;
+      }>(),
+    ]);
+
+    await sendBookingConfirmationEmail({
+      to: params.patient.email,
+      patientFirstName: params.patient.firstName,
+      practiceName: params.practiceName,
+      dentistName: dentist ? `${dentist.title ?? "Dr."} ${dentist.first_name} ${dentist.last_name}` : "your dentist",
+      treatmentName: treatment?.treatment_name ?? "your appointment",
+      dateLabel: formatDateLong(params.date),
+      timeLabel: params.time,
+      reference: params.reference,
+    });
+  } catch (err) {
+    // A booking that already succeeded must never be rolled back over an
+    // email provider hiccup or missing API key.
+    console.warn(`Booking confirmation email skipped for reference ${params.reference}:`, err);
   }
 }
 
@@ -136,12 +178,26 @@ export async function submitBookingAction(
     return { ok: false, message: `Failed to confirm booking: ${insertError.message}` };
   }
 
-  await syncNewAppointmentToGoogleCalendar(appointment.id);
+  const reference = `IDP-${appointment.id.slice(0, 8).toUpperCase()}`;
+
+  await Promise.all([
+    syncNewAppointmentToGoogleCalendar(appointment.id),
+    sendConfirmationEmail({
+      supabase,
+      practiceName: practice.practiceName,
+      dentistId: input.dentistId,
+      treatmentId: input.treatmentId,
+      patient: parsedPatient.data,
+      date: input.date,
+      time: input.time,
+      reference,
+    }),
+  ]);
 
   return {
     ok: true,
     reservation: {
-      reference: `IDP-${appointment.id.slice(0, 8).toUpperCase()}`,
+      reference,
       confirmedAt: appointment.created_at,
     },
   };

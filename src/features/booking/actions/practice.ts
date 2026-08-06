@@ -4,6 +4,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export interface BookingPractice {
   id: string;
+  practiceName: string;
   timezone: string;
 }
 
@@ -19,9 +20,10 @@ export async function getCurrentBookingPractice(): Promise<BookingPractice | nul
   const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase
     .from("practices")
-    .select("id, timezone")
+    .select("id, practice_name, timezone")
     .limit(1)
-    .maybeSingle<{ id: string; timezone: string }>();
+    .maybeSingle<{ id: string; practice_name: string; timezone: string }>();
   if (error) throw new Error(`getCurrentBookingPractice failed: ${error.message}`);
-  return data;
+  if (!data) return null;
+  return { id: data.id, practiceName: data.practice_name, timezone: data.timezone };
 }
