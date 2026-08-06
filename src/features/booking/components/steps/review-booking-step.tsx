@@ -4,6 +4,7 @@ import * as React from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { LoadingState } from "@/components/shared/state-views";
 import { StepContainer } from "../step-container";
 import { StepHeader } from "../step-header";
 import { BookingSummary } from "../booking-summary";
@@ -12,7 +13,7 @@ import { useBookingStore } from "../../store/booking-store";
 import { submitBookingAction } from "../../actions/submit-booking-action";
 
 export function ReviewBookingStep() {
-  const { dentist, treatment } = useBookingSelection();
+  const { dentist, treatment, isLoading } = useBookingSelection();
   const date = useBookingStore((s) => s.date);
   const time = useBookingStore((s) => s.time);
   const patient = useBookingStore((s) => s.patient);
@@ -24,9 +25,14 @@ export function ReviewBookingStep() {
   const isComplete = dentist && treatment && date && time && patient;
 
   React.useEffect(() => {
-    if (!isComplete) goToStep("dentist");
-  }, [isComplete, goToStep]);
+    // Only redirect once the catalog has actually settled — while it's
+    // still loading, dentist/treatment are transiently null even for a
+    // valid selection, and redirecting on that would bounce every hard
+    // refresh of this step back to square one.
+    if (!isLoading && !isComplete) goToStep("dentist");
+  }, [isLoading, isComplete, goToStep]);
 
+  if (isLoading) return <LoadingState label="Loading your booking details…" />;
   if (!isComplete) return null;
 
   async function handleConfirm() {

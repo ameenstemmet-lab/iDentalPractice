@@ -1,23 +1,37 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { CheckIcon, DownloadIcon, HomeIcon, RotateCcwIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { LoadingState } from "@/components/shared/state-views";
 import { StepContainer } from "../step-container";
 import { BookingSummary } from "../booking-summary";
 import { useBookingSelection } from "../../hooks/use-booking-selection";
 import { useBookingStore } from "../../store/booking-store";
 
 export function ConfirmationStep() {
-  const { dentist, treatment } = useBookingSelection();
+  const { dentist, treatment, isLoading } = useBookingSelection();
   const date = useBookingStore((s) => s.date);
   const time = useBookingStore((s) => s.time);
   const patient = useBookingStore((s) => s.patient);
   const reservation = useBookingStore((s) => s.reservation);
   const reset = useBookingStore((s) => s.reset);
 
+  const isStale = !isLoading && reservation && (!dentist || !treatment);
+
+  React.useEffect(() => {
+    // A persisted reservation whose dentist/treatment no longer resolve is
+    // a session left over from before the catalog changed underneath it
+    // (e.g. real data replacing mock data) — recover by starting fresh
+    // instead of dead-ending on a permanently blank confirmation screen.
+    if (isStale) reset();
+  }, [isStale, reset]);
+
+  if (isLoading) return <LoadingState label="Loading your confirmation…" />;
+  if (isStale) return null;
   if (!dentist || !treatment || !date || !time || !reservation) return null;
 
   function bookAnother() {
