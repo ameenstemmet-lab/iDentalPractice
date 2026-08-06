@@ -1,34 +1,34 @@
 "use client";
 
-import * as React from "react";
+import { useQuery } from "@tanstack/react-query";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { StepContainer } from "../step-container";
 import { StepHeader } from "../step-header";
 import { TimeSlotButton } from "../time-slot-button";
+import { useBookingPractice } from "../practice-context";
 import { useBookingStore } from "../../store/booking-store";
-import { fetchDayAvailability } from "../../services/availability-service";
+import { useBookingSelection } from "../../hooks/use-booking-selection";
+import { getTimeSlotsAction } from "../../actions/availability-actions";
 import { formatDateLong } from "../../utils/format";
-import type { TimeSlot } from "../../types";
 
 export function ChooseTimeStep() {
-  const dentistId = useBookingStore((s) => s.dentistId) ?? "unknown";
+  const { timezone } = useBookingPractice();
+  const dentistId = useBookingStore((s) => s.dentistId);
   const date = useBookingStore((s) => s.date);
   const time = useBookingStore((s) => s.time);
   const selectTime = useBookingStore((s) => s.selectTime);
-  const [slots, setSlots] = React.useState<TimeSlot[] | null>(null);
+  const { treatment } = useBookingSelection();
+  const durationMinutes = treatment?.durationMinutes ?? 30;
 
-  React.useEffect(() => {
-    if (!date) return;
-    setSlots(null);
-    let cancelled = false;
-    fetchDayAvailability(dentistId, new Date(`${date}T00:00:00`)).then((day) => {
-      if (!cancelled) setSlots(day.slots);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [dentistId, date]);
+  const { data: day } = useQuery({
+    queryKey: ["booking", "time-slots", dentistId, date, timezone, durationMinutes],
+    queryFn: () => getTimeSlotsAction(dentistId!, date!, timezone, durationMinutes),
+    enabled: !!dentistId && !!date,
+    staleTime: 15_000,
+  });
+
+  const slots = day?.slots ?? null;
 
   return (
     <StepContainer>

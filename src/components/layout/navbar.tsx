@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { BellIcon, LogOutIcon, SearchIcon, SettingsIcon, UserIcon } from "lucide-react";
+import { BellIcon, LogOutIcon, SettingsIcon, UserIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -17,17 +17,19 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { GlobalSearch } from "@/components/reception/global-search";
 
 interface NavbarProps extends React.ComponentProps<"header"> {
   title?: string;
+  practiceName?: string;
 }
 
 /**
- * Top app bar, paired with AppSidebar inside a SidebarInset. Reference
- * implementation of the navigation design — sidebar collapse trigger, page
- * title slot, search entry point, theme toggle, account menu.
+ * Top app bar, paired with AppSidebar inside a SidebarInset. Sidebar
+ * collapse trigger, current-practice label, page title slot, global
+ * search, notifications, theme toggle, account menu.
  */
-export function Navbar({ title, className, ...props }: NavbarProps) {
+export function Navbar({ title, practiceName, className, ...props }: NavbarProps) {
   return (
     <header
       className={cn(
@@ -38,14 +40,18 @@ export function Navbar({ title, className, ...props }: NavbarProps) {
     >
       <SidebarTrigger className="-ml-1" />
       <Separator orientation="vertical" className="h-4" />
+      {practiceName ? (
+        <span className="truncate text-sm font-semibold text-foreground">{practiceName}</span>
+      ) : null}
       {title ? (
-        <h1 className="truncate text-sm font-medium text-foreground">{title}</h1>
+        <>
+          {practiceName ? <span className="text-muted-foreground">/</span> : null}
+          <h1 className="truncate text-sm font-medium text-muted-foreground">{title}</h1>
+        </>
       ) : null}
 
       <div className="ml-auto flex items-center gap-1.5">
-        <Button variant="ghost" size="icon" aria-label="Search">
-          <SearchIcon />
-        </Button>
+        <GlobalSearch />
         <Button variant="ghost" size="icon" aria-label="Notifications">
           <BellIcon />
         </Button>

@@ -9,7 +9,7 @@ import { StepHeader } from "../step-header";
 import { BookingSummary } from "../booking-summary";
 import { useBookingSelection } from "../../hooks/use-booking-selection";
 import { useBookingStore } from "../../store/booking-store";
-import { submitBooking } from "../../services/booking-service";
+import { submitBookingAction } from "../../actions/submit-booking-action";
 
 export function ReviewBookingStep() {
   const { dentist, treatment } = useBookingSelection();
@@ -32,14 +32,19 @@ export function ReviewBookingStep() {
   async function handleConfirm() {
     setIsSubmitting(true);
     try {
-      const reservation = await submitBooking({
+      const result = await submitBookingAction({
         dentistId: dentist!.id,
         treatmentId: treatment!.id,
         date: date!,
         time: time!,
+        durationMinutes: treatment!.durationMinutes,
         patient: patient!,
       });
-      setReservation(reservation);
+      if (result.ok) {
+        setReservation(result.reservation);
+      } else {
+        toast.error(result.message);
+      }
     } catch {
       toast.error("Something went wrong confirming your booking. Please try again.");
     } finally {

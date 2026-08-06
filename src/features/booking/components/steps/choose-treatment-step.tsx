@@ -1,29 +1,18 @@
 "use client";
 
-import * as React from "react";
-
 import { SkeletonCard } from "@/components/shared/skeleton-patterns";
 import { StepContainer } from "../step-container";
 import { StepHeader } from "../step-header";
 import { TreatmentCard } from "../treatment-card";
-import { fetchTreatments } from "../../services/booking-service";
+import { useBookingPractice } from "../practice-context";
+import { useTreatmentsQuery } from "../../hooks/use-catalog";
 import { useBookingStore } from "../../store/booking-store";
-import type { Treatment } from "../../types";
 
 export function ChooseTreatmentStep() {
+  const { practiceId } = useBookingPractice();
   const treatmentId = useBookingStore((s) => s.treatmentId);
   const selectTreatment = useBookingStore((s) => s.selectTreatment);
-  const [treatments, setTreatments] = React.useState<Treatment[] | null>(null);
-
-  React.useEffect(() => {
-    let cancelled = false;
-    fetchTreatments().then((data) => {
-      if (!cancelled) setTreatments(data);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const { data: treatments } = useTreatmentsQuery(practiceId);
 
   return (
     <StepContainer wide>
@@ -34,7 +23,7 @@ export function ChooseTreatmentStep() {
       />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {treatments === null
+        {treatments === undefined
           ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
           : treatments.map((treatment) => (
               <TreatmentCard

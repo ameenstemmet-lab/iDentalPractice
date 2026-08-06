@@ -1,29 +1,18 @@
 "use client";
 
-import * as React from "react";
-
 import { SkeletonCard } from "@/components/shared/skeleton-patterns";
 import { StepContainer } from "../step-container";
 import { StepHeader } from "../step-header";
 import { DentistCard } from "../dentist-card";
-import { fetchDentists } from "../../services/booking-service";
+import { useBookingPractice } from "../practice-context";
+import { useDentistsQuery } from "../../hooks/use-catalog";
 import { useBookingStore } from "../../store/booking-store";
-import type { Dentist } from "../../types";
 
 export function ChooseDentistStep() {
+  const { practiceId } = useBookingPractice();
   const dentistId = useBookingStore((s) => s.dentistId);
   const selectDentist = useBookingStore((s) => s.selectDentist);
-  const [dentists, setDentists] = React.useState<Dentist[] | null>(null);
-
-  React.useEffect(() => {
-    let cancelled = false;
-    fetchDentists().then((data) => {
-      if (!cancelled) setDentists(data);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const { data: dentists } = useDentistsQuery(practiceId);
 
   return (
     <StepContainer wide>
@@ -34,7 +23,7 @@ export function ChooseDentistStep() {
       />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {dentists === null
+        {dentists === undefined
           ? Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)
           : dentists.map((dentist) => (
               <DentistCard

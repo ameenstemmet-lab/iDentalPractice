@@ -4,10 +4,15 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  BarChart3Icon,
+  CalendarClockIcon,
   CalendarDaysIcon,
-  CreditCardIcon,
+  CalendarIcon,
+  CalendarOffIcon,
   LayoutDashboardIcon,
   SettingsIcon,
+  StethoscopeIcon,
+  UserCogIcon,
   UsersIcon,
 } from "lucide-react";
 
@@ -25,18 +30,60 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 
-const navItems = [
-  { title: "Overview", href: "/dashboard", icon: LayoutDashboardIcon },
-  { title: "Patients", href: "/patients", icon: UsersIcon },
+const overviewItems = [
+  { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
   { title: "Appointments", href: "/appointments", icon: CalendarDaysIcon },
-  { title: "Billing", href: "/billing", icon: CreditCardIcon },
+  { title: "Calendar", href: "/calendar", icon: CalendarIcon },
 ] as const;
 
-/**
- * Reference implementation of the sidebar design — grouped navigation,
- * active-route highlighting, collapsible-to-icon rail. Wire real practice
- * data into the header slot when the dashboard milestone lands.
- */
+const practiceItems = [
+  { title: "Patients", href: "/patients", icon: UsersIcon },
+  { title: "Dentists", href: "/dentists", icon: StethoscopeIcon },
+  { title: "Treatments", href: "/treatments", icon: UserCogIcon },
+] as const;
+
+const schedulingItems = [
+  { title: "Working Hours", href: "/working-hours", icon: CalendarClockIcon },
+  { title: "Blocked Time", href: "/blocked-time", icon: CalendarOffIcon },
+] as const;
+
+const footerItems = [
+  { title: "Google Calendar", href: "/settings/integrations/google-calendar", icon: CalendarIcon },
+  { title: "Reports", href: "/reports", icon: BarChart3Icon },
+  { title: "Settings", href: "/settings", icon: SettingsIcon },
+] as const;
+
+function NavGroup({
+  label,
+  items,
+  pathname,
+}: {
+  label: string;
+  items: ReadonlyArray<{ title: string; href: string; icon: React.ComponentType<{ className?: string }> }>;
+  pathname: string | null;
+}) {
+  return (
+    <SidebarGroup>
+      <SidebarGroupLabel>{label}</SidebarGroupLabel>
+      <SidebarGroupContent>
+        <SidebarMenu>
+          {items.map((item) => (
+            <SidebarMenuItem key={item.href}>
+              <SidebarMenuButton asChild tooltip={item.title} isActive={pathname?.startsWith(item.href)}>
+                <Link href={item.href}>
+                  <item.icon />
+                  <span>{item.title}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
+  );
+}
+
+/** The reception & practice administration portal's primary navigation. */
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
 
@@ -50,9 +97,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                 <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-primary text-xs font-semibold text-primary-foreground">
                   iD
                 </span>
-                <span className="text-sm font-semibold tracking-tight">
-                  iDentalPractice
-                </span>
+                <span className="text-sm font-semibold tracking-tight">iDentalPractice</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -60,39 +105,23 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
 
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Practice</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
-                    asChild
-                    tooltip={item.title}
-                    isActive={pathname?.startsWith(item.href)}
-                  >
-                    <Link href={item.href}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <NavGroup label="Overview" items={overviewItems} pathname={pathname} />
+        <NavGroup label="Practice" items={practiceItems} pathname={pathname} />
+        <NavGroup label="Scheduling" items={schedulingItems} pathname={pathname} />
       </SidebarContent>
 
       <SidebarFooter>
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Settings">
-              <Link href="/settings">
-                <SettingsIcon />
-                <span>Settings</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          {footerItems.map((item) => (
+            <SidebarMenuItem key={item.href}>
+              <SidebarMenuButton asChild tooltip={item.title} isActive={pathname?.startsWith(item.href)}>
+                <Link href={item.href}>
+                  <item.icon />
+                  <span>{item.title}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
         </SidebarMenu>
       </SidebarFooter>
 
