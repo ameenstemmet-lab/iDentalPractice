@@ -9,12 +9,10 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 
 const NAV_LINKS = [
-  { label: "Home", href: "#home" },
-  { label: "About", href: "#about" },
-  { label: "Our Services", href: "#services" },
-  { label: "Our Doctors", href: "#doctors" },
-  { label: "Patient Info", href: "#patient-info" },
-  { label: "Contact", href: "#contact" },
+  { label: "How it works", href: "#how-it-works" },
+  { label: "Specialties", href: "#services" },
+  { label: "Why iPractice", href: "#about" },
+  { label: "FAQ", href: "#faq" },
 ] as const;
 
 export function MarketingNav() {
@@ -50,7 +48,7 @@ export function MarketingNav() {
               iPractice
             </span>
             <span className="text-[10px] tracking-wide text-muted-foreground uppercase">
-              Care. Compassion. Community.
+              Scheduling for multi-specialty practices
             </span>
           </span>
         </Link>
@@ -69,8 +67,11 @@ export function MarketingNav() {
 
         <div className="ml-auto hidden items-center gap-2 lg:flex">
           <ThemeToggle />
+          <Button asChild variant="ghost">
+            <Link href="/login">Sign in</Link>
+          </Button>
           <Button asChild className="gap-1.5">
-            <Link href="/booking">Book Appointment</Link>
+            <Link href="/signup">Start your practice</Link>
           </Button>
         </div>
 
@@ -98,9 +99,14 @@ export function MarketingNav() {
               </a>
             ))}
           </nav>
-          <Button asChild className="mt-3 w-full gap-1.5">
-            <Link href="/booking">Book Appointment</Link>
-          </Button>
+          <div className="mt-3 flex gap-2">
+            <Button asChild variant="outline" className="flex-1">
+              <Link href="/login">Sign in</Link>
+            </Button>
+            <Button asChild className="flex-1 gap-1.5">
+              <Link href="/signup">Start free</Link>
+            </Button>
+          </div>
         </div>
       ) : null}
     </header>

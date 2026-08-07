@@ -1,48 +1,54 @@
 import Link from "next/link";
-import { ClockIcon, MailIcon, MapPinIcon, PhoneIcon } from "lucide-react";
+import { MailIcon, MessageCircleIcon } from "lucide-react";
 
 const CONTACT = {
-  phone: "021 123 4567",
-  address: "123 Healthcare Way, Claremont, Cape Town",
-  hours: "Mon – Fri: 8am – 5pm · Sat: 8am – 1pm",
-  email: "reception@ipractice.co.za",
+  email: "hello@ipractice.co.za",
+  whatsapp: "+27 21 123 4567",
 } as const;
 
 const FOOTER_LINKS = {
-  Practice: [
-    { label: "About", href: "#about" },
-    { label: "Our Doctors", href: "#doctors" },
-    { label: "Our Services", href: "#services" },
-    { label: "Contact", href: "#contact" },
+  Product: [
+    { label: "How it works", href: "#how-it-works" },
+    { label: "Specialties supported", href: "#services" },
+    { label: "Why iPractice", href: "#about" },
+    { label: "FAQ", href: "#faq" },
   ],
-  Patients: [
-    { label: "Patient Info", href: "#patient-info" },
-    { label: "Book Appointment", href: "/booking" },
-    { label: "Medical Aid", href: "#patient-info" },
-    { label: "FAQs", href: "#patient-info" },
+  "Get started": [
+    { label: "Start your practice", href: "/signup" },
+    { label: "Sign in", href: "/login" },
+    { label: "Live example", href: "/book/stemmet-dental" },
+    { label: "Talk to us", href: "https://wa.me/27211234567" },
   ],
 } as const;
 
 export function ContactSection() {
   return (
     <section id="contact" className="border-t border-border py-16">
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8">
-        {[
-          { icon: PhoneIcon, label: "Call us today", value: CONTACT.phone },
-          { icon: MapPinIcon, label: "Visit us", value: CONTACT.address },
-          { icon: ClockIcon, label: "Practice hours", value: CONTACT.hours },
-          { icon: MailIcon, label: "Email us", value: CONTACT.email },
-        ].map(({ icon: Icon, label, value }) => (
-          <div key={label} className="flex items-start gap-3">
-            <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <Icon className="size-4" />
-            </span>
-            <div>
-              <p className="text-xs text-muted-foreground">{label}</p>
-              <p className="text-sm font-medium text-foreground">{value}</p>
-            </div>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col items-start justify-between gap-8 sm:flex-row sm:items-center">
+          <div>
+            <p className="font-heading text-lg font-semibold text-foreground">Questions before you sign up?</p>
+            <p className="mt-1 text-sm text-muted-foreground">We answer these ourselves — no sales queue.</p>
           </div>
-        ))}
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <a
+              href={`mailto:${CONTACT.email}`}
+              className="flex items-center gap-2.5 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground transition-colors duration-fast hover:border-primary/40"
+            >
+              <MailIcon className="size-4 text-primary" />
+              {CONTACT.email}
+            </a>
+            <a
+              href="https://wa.me/27211234567"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2.5 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground transition-colors duration-fast hover:border-primary/40"
+            >
+              <MessageCircleIcon className="size-4 text-primary" />
+              {CONTACT.whatsapp}
+            </a>
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -63,7 +69,9 @@ export function MarketingFooter() {
               </span>
             </Link>
             <p className="mt-3 max-w-xs text-sm text-muted-foreground">
-              Multi-disciplinary healthcare, delivered by experienced specialists under one roof.
+              One diary per practitioner, any specialty, patients book themselves — for
+              multi-disciplinary practices that are tired of losing bookings to a calendar that
+              can&apos;t keep up.
             </p>
           </div>
 

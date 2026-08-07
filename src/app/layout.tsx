@@ -23,8 +23,9 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "iPractice",
-  description: "Multi-disciplinary healthcare, delivered by experienced specialists under one roof.",
+  title: "iPractice — Scheduling for multi-specialty practices",
+  description:
+    "Every practitioner gets their own diary, synced to their own calendar, bookable by patients online. Any specialty, free to start.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

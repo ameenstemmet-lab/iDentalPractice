@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowUpIcon, CalendarCheckIcon, MessageCircleIcon } from "lucide-react";
+import { ArrowRightIcon, ArrowUpIcon, MessageCircleIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -26,7 +26,7 @@ export function FloatingActions() {
           href="https://wa.me/27211234567"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Chat on WhatsApp"
+          aria-label="Chat with sales on WhatsApp"
           className="flex size-12 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition-transform duration-base hover:scale-105"
         >
           <MessageCircleIcon className="size-5.5" fill="currentColor" strokeWidth={0} />
@@ -50,17 +50,17 @@ export function FloatingActions() {
           href="https://wa.me/27211234567"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Chat on WhatsApp"
+          aria-label="Chat with sales on WhatsApp"
           className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#25D366] text-white"
         >
           <MessageCircleIcon className="size-4.5" fill="currentColor" strokeWidth={0} />
         </a>
         <Link
-          href="/booking"
+          href="/signup"
           className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground"
         >
-          <CalendarCheckIcon className="size-4" />
-          Book Appointment
+          Start your practice
+          <ArrowRightIcon className="size-4" />
         </Link>
       </div>
     </>

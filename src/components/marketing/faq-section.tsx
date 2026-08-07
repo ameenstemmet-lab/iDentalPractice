@@ -2,42 +2,45 @@ import { PlusIcon } from "lucide-react";
 
 const FAQS = [
   {
-    question: "Do I need a referral to book an appointment?",
+    question: "What does it cost?",
     answer:
-      "No referral is needed for most specialities — you can book directly online. Some specialist services may recommend a referral from your GP for continuity of care, which our reception team can advise on.",
+      "iPractice is free to start while we're in early access — create your practice, add your practitioners, and take bookings with no card required. We'll give existing practices plenty of notice before any pricing changes.",
   },
   {
-    question: "Which medical aids do you accept?",
+    question: "Does my specialty need to be supported already?",
     answer:
-      "We accept most major medical aid schemes. Contact reception before your visit to confirm your specific plan and any co-payment that may apply.",
+      "No. Profession is a free-text field you fill in when you add a practitioner — dentist, GP, physiotherapist, psychiatrist, optometrist, anything. There's no list to be missing from.",
   },
   {
-    question: "Can I book more than one specialist in a single visit?",
+    question: "Can a practitioner see only their own appointments?",
     answer:
-      "Yes — since every specialist has their own independent diary, you can book back-to-back appointments with different practitioners on the same day where availability allows.",
+      "Yes. Invite them from the Practitioners page and they get their own login, scoped to their own diary — they never see the rest of the practice's admin pages unless you make them staff instead.",
   },
   {
-    question: "What should I bring to my first appointment?",
+    question: "Does this replace our Google Calendar?",
     answer:
-      "Please bring a valid ID, your medical aid card (if applicable), and a list of any current medication. Arriving 10 minutes early helps keep the day running on time for everyone.",
+      "No — it syncs to it. Each practitioner can connect their own Google Calendar independently, or the whole practice can share one. Supabase (our database) stays the source of truth; Google is always a synced view of it, never the other way around.",
   },
   {
-    question: "How do I cancel or reschedule?",
+    question: "Who can see our patient data?",
     answer:
-      "Use the link in your booking confirmation email, or contact reception directly. We appreciate as much notice as possible so the slot can be offered to another patient.",
+      "Only logins that belong to your practice. Every request is checked against the signed-in user's own practice — there's no way for one practice's staff to query another's data, by design, not just by convention.",
+  },
+  {
+    question: "How long does setup actually take?",
+    answer:
+      "Signup creates your practice and login immediately. Adding your first practitioner and their working hours takes a few minutes. There's no onboarding call to book.",
   },
 ] as const;
 
 export function FaqSection() {
   return (
-    <section id="patient-info" className="py-20 sm:py-28">
+    <section id="faq" className="bg-surface py-20 sm:py-28">
       <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-          <p className="text-xs font-semibold tracking-wide text-gold-foreground uppercase">
-            Patient information
-          </p>
+          <p className="text-xs font-semibold tracking-wide text-gold-foreground uppercase">Before you sign up</p>
           <h2 className="mt-2 font-heading text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-            Frequently asked questions
+            Questions practice owners actually ask
           </h2>
         </div>
 

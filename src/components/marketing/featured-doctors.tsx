@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { GraduationCapIcon } from "lucide-react";
+import { ArrowRightIcon, GraduationCapIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import type { Practitioner } from "@/features/booking/types";
 
 export function FeaturedDoctors({ practitioners }: { practitioners: Practitioner[] }) {
@@ -10,25 +9,30 @@ export function FeaturedDoctors({ practitioners }: { practitioners: Practitioner
   return (
     <section id="doctors" className="bg-surface py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
+        <div className="max-w-xl">
           <p className="text-xs font-semibold tracking-wide text-gold-foreground uppercase">
-            Meet the team
+            Not a mockup — a real practice
           </p>
           <h2 className="mt-2 font-heading text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-            Our Doctors
+            Stemmet Dental runs three specialties on iPractice today.
           </h2>
           <p className="mt-4 text-muted-foreground">
-            Experienced specialists across every discipline, each with their own dedicated diary.
+            A dentist, a GP, and a physiotherapist — each with their own diary, each bookable
+            independently at{" "}
+            <Link href="/book/stemmet-dental" className="font-medium text-primary hover:underline">
+              /book/stemmet-dental
+            </Link>
+            .
           </p>
         </div>
 
-        <div className="mt-14 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {practitioners.map((p) => {
             const initials = `${p.firstName[0]}${p.lastName[0]}`.toUpperCase();
             return (
               <div
                 key={p.id}
-                className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-card p-6 text-center shadow-xs transition-all duration-base hover:-translate-y-1 hover:shadow-lg"
+                className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-card p-6 text-center shadow-xs"
               >
                 <span className="flex size-16 items-center justify-center rounded-full bg-primary/10 text-lg font-semibold text-primary">
                   {initials}
@@ -46,13 +50,18 @@ export function FeaturedDoctors({ practitioners }: { practitioners: Practitioner
                     {p.qualification}
                   </p>
                 ) : null}
-                <Button asChild size="sm" variant="outline" className="mt-1 w-full">
-                  <Link href="/booking">Book with {p.firstName}</Link>
-                </Button>
               </div>
             );
           })}
         </div>
+
+        <Link
+          href="/book/stemmet-dental"
+          className="mt-8 inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+        >
+          See their live booking page
+          <ArrowRightIcon className="size-3.5" />
+        </Link>
       </div>
     </section>
   );
