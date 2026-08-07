@@ -28,6 +28,7 @@ import {
 } from "@/features/reception/practitioners/queries";
 import type { Practitioner } from "@/features/reception/practitioners/types";
 import { useTreatments } from "@/features/reception/treatments/queries";
+import { invitePractitionerToLoginAction } from "@/features/auth/invite-actions";
 
 const practitionerSchema = z.object({
   firstName: z.string().trim().min(1, "Required"),
@@ -91,6 +92,21 @@ function PractitionerFormDialog({
   const treatments = useTreatments(practiceId);
   const assignedTreatmentIds = usePractitionerTreatmentIds(practitioner?.id);
   const [selectedTreatmentIds, setSelectedTreatmentIds] = React.useState<string[]>([]);
+  const [isInviting, setIsInviting] = React.useState(false);
+
+  async function handleInvite() {
+    if (!practitioner) return;
+    const email = form.getValues("email");
+    if (!email) {
+      toast.error("Add an email address first, then save before inviting.");
+      return;
+    }
+    setIsInviting(true);
+    const result = await invitePractitionerToLoginAction(practitioner.id, email);
+    setIsInviting(false);
+    if (result.ok) toast.success(result.message);
+    else toast.error(result.message);
+  }
 
   React.useEffect(() => {
     if (open) setSelectedTreatmentIds(assignedTreatmentIds.data ?? []);
@@ -156,7 +172,19 @@ function PractitionerFormDialog({
               </Field>
             </div>
             <Field data-invalid={!!form.formState.errors.email}>
-              <FieldLabel htmlFor="email">Email</FieldLabel>
+              <div className="flex items-center justify-between">
+                <FieldLabel htmlFor="email">Email</FieldLabel>
+                {practitioner ? (
+                  <button
+                    type="button"
+                    onClick={handleInvite}
+                    disabled={isInviting}
+                    className="text-xs font-medium text-primary hover:underline disabled:opacity-50"
+                  >
+                    {isInviting ? "Sending invite…" : "Invite to log in"}
+                  </button>
+                ) : null}
+              </div>
               <Input id="email" type="email" {...form.register("email")} />
               <FieldError errors={[form.formState.errors.email]} />
             </Field>

@@ -29,6 +29,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { usePracticeContext } from "@/components/reception/practice-context";
 
 const overviewItems = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboardIcon },
@@ -38,36 +39,48 @@ const overviewItems = [
 
 const practiceItems = [
   { title: "Patients", href: "/patients", icon: UsersIcon },
-  { title: "Practitioners", href: "/practitioners", icon: StethoscopeIcon },
-  { title: "Treatments", href: "/treatments", icon: UserCogIcon },
+  { title: "Practitioners", href: "/practitioners", icon: StethoscopeIcon, staffOnly: true },
+  { title: "Treatments", href: "/treatments", icon: UserCogIcon, staffOnly: true },
 ] as const;
 
 const schedulingItems = [
-  { title: "Working Hours", href: "/working-hours", icon: CalendarClockIcon },
-  { title: "Blocked Time", href: "/blocked-time", icon: CalendarOffIcon },
+  { title: "Working Hours", href: "/working-hours", icon: CalendarClockIcon, staffOnly: true },
+  { title: "Blocked Time", href: "/blocked-time", icon: CalendarOffIcon, staffOnly: true },
 ] as const;
 
 const footerItems = [
-  { title: "Google Calendar", href: "/settings/integrations/google-calendar", icon: CalendarIcon },
-  { title: "Reports", href: "/reports", icon: BarChart3Icon },
-  { title: "Settings", href: "/settings", icon: SettingsIcon },
+  { title: "Google Calendar", href: "/settings/integrations/google-calendar", icon: CalendarIcon, staffOnly: true },
+  { title: "Reports", href: "/reports", icon: BarChart3Icon, staffOnly: true },
+  { title: "Settings", href: "/settings", icon: SettingsIcon, staffOnly: true },
 ] as const;
+
+interface NavItem {
+  title: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  staffOnly?: boolean;
+}
 
 function NavGroup({
   label,
   items,
   pathname,
+  isStaff,
 }: {
   label: string;
-  items: ReadonlyArray<{ title: string; href: string; icon: React.ComponentType<{ className?: string }> }>;
+  items: readonly NavItem[];
   pathname: string | null;
+  isStaff: boolean;
 }) {
+  const visibleItems = items.filter((item) => isStaff || !item.staffOnly);
+  if (visibleItems.length === 0) return null;
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>{label}</SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
-          {items.map((item) => (
+          {visibleItems.map((item) => (
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton asChild tooltip={item.title} isActive={pathname?.startsWith(item.href)}>
                 <Link href={item.href}>
@@ -86,6 +99,8 @@ function NavGroup({
 /** The reception & practice administration portal's primary navigation. */
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
+  const { role } = usePracticeContext();
+  const isStaff = role === "staff";
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -95,9 +110,9 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton size="lg" asChild>
               <Link href="/dashboard">
                 <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-primary text-xs font-semibold text-primary-foreground">
-                  iD
+                  iP
                 </span>
-                <span className="text-sm font-semibold tracking-tight">iDentalPractice</span>
+                <span className="text-sm font-semibold tracking-tight">iPractice</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -105,14 +120,14 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
 
       <SidebarContent>
-        <NavGroup label="Overview" items={overviewItems} pathname={pathname} />
-        <NavGroup label="Practice" items={practiceItems} pathname={pathname} />
-        <NavGroup label="Scheduling" items={schedulingItems} pathname={pathname} />
+        <NavGroup label="Overview" items={overviewItems} pathname={pathname} isStaff={isStaff} />
+        <NavGroup label="Practice" items={practiceItems} pathname={pathname} isStaff={isStaff} />
+        <NavGroup label="Scheduling" items={schedulingItems} pathname={pathname} isStaff={isStaff} />
       </SidebarContent>
 
       <SidebarFooter>
         <SidebarMenu>
-          {footerItems.map((item) => (
+          {footerItems.filter((item) => isStaff || !item.staffOnly).map((item) => (
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton asChild tooltip={item.title} isActive={pathname?.startsWith(item.href)}>
                 <Link href={item.href}>

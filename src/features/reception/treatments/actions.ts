@@ -1,6 +1,7 @@
 "use server";
 
 import { createAdminClient } from "../shared/supabase-admin";
+import { assertPracticeAccess, requireSession } from "@/lib/auth/session";
 import type { Treatment, TreatmentInput } from "./types";
 
 interface TreatmentRow {
@@ -30,6 +31,7 @@ function toTreatment(row: TreatmentRow): Treatment {
 const SELECT = "id, practice_id, treatment_name, description, duration_minutes, price, colour, active";
 
 export async function listTreatments(practiceId: string, includeInactive = false): Promise<Treatment[]> {
+  await assertPracticeAccess(practiceId);
   const supabase = createAdminClient();
   let query = supabase.from("treatment_types").select(SELECT).eq("practice_id", practiceId).order("treatment_name");
   if (!includeInactive) query = query.eq("active", true);
@@ -39,6 +41,7 @@ export async function listTreatments(practiceId: string, includeInactive = false
 }
 
 export async function createTreatment(practiceId: string, input: TreatmentInput): Promise<Treatment> {
+  await assertPracticeAccess(practiceId);
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("treatment_types")
@@ -57,6 +60,7 @@ export async function createTreatment(practiceId: string, input: TreatmentInput)
 }
 
 export async function updateTreatment(treatmentId: string, input: TreatmentInput): Promise<Treatment> {
+  const session = await requireSession();
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("treatment_types")
@@ -68,6 +72,7 @@ export async function updateTreatment(treatmentId: string, input: TreatmentInput
       colour: input.colour,
     })
     .eq("id", treatmentId)
+    .eq("practice_id", session.practiceId)
     .select(SELECT)
     .single<TreatmentRow>();
   if (error) throw new Error(`updateTreatment failed: ${error.message}`);
@@ -75,7 +80,12 @@ export async function updateTreatment(treatmentId: string, input: TreatmentInput
 }
 
 export async function setTreatmentActive(treatmentId: string, active: boolean): Promise<void> {
+  const session = await requireSession();
   const supabase = createAdminClient();
-  const { error } = await supabase.from("treatment_types").update({ active }).eq("id", treatmentId);
+  const { error } = await supabase
+    .from("treatment_types")
+    .update({ active })
+    .eq("id", treatmentId)
+    .eq("practice_id", session.practiceId);
   if (error) throw new Error(`setTreatmentActive failed: ${error.message}`);
 }

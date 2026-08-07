@@ -1,10 +1,13 @@
 "use client";
 
+import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { toast } from "sonner";
+import { MailPlusIcon } from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -12,6 +15,8 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePracticeContext } from "@/components/reception/practice-context";
 import { usePracticeSettings, useUpdatePracticeSettings } from "@/features/reception/settings/queries";
+import { useInvalidateTeamMembers, useTeamMembers } from "@/features/auth/queries";
+import { inviteStaffMemberAction } from "@/features/auth/invite-actions";
 
 const settingsSchema = z.object({
   practiceName: z.string().trim().min(1, "Required"),
@@ -155,6 +160,73 @@ function PracticeDetailsForm({ practiceId }: { practiceId: string }) {
   );
 }
 
+function TeamCard({ practiceId }: { practiceId: string }) {
+  const { data: members, isLoading } = useTeamMembers(practiceId);
+  const invalidate = useInvalidateTeamMembers();
+  const [email, setEmail] = React.useState("");
+  const [isInviting, setIsInviting] = React.useState(false);
+
+  async function handleInvite(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email.trim()) return;
+    setIsInviting(true);
+    const result = await inviteStaffMemberAction(email.trim());
+    setIsInviting(false);
+    if (result.ok) {
+      toast.success(result.message);
+      setEmail("");
+      invalidate(practiceId);
+    } else {
+      toast.error(result.message);
+    }
+  }
+
+  return (
+    <Card className="max-w-2xl">
+      <CardHeader>
+        <CardTitle>Team</CardTitle>
+        <CardDescription>
+          Everyone with a login to this practice. To let a specific doctor log in and see only their own
+          diary, invite them from their row on the Practitioners page instead.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-4">
+        {isLoading ? (
+          <Skeleton className="h-24 w-full" />
+        ) : members?.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Just you so far.</p>
+        ) : (
+          <ul className="flex flex-col divide-y divide-border rounded-lg border border-border">
+            {members?.map((member) => (
+              <li key={member.id} className="flex items-center justify-between gap-3 px-3 py-2.5 text-sm">
+                <span className="truncate text-foreground">{member.email}</span>
+                <Badge variant="secondary">{member.role === "practitioner" ? "Practitioner" : "Staff"}</Badge>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <form onSubmit={handleInvite} className="flex items-end gap-2">
+          <Field className="flex-1">
+            <FieldLabel htmlFor="invite-email">Invite a staff member</FieldLabel>
+            <Input
+              id="invite-email"
+              type="email"
+              placeholder="colleague@practice.co.za"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </Field>
+          <Button type="submit" disabled={isInviting} className="gap-1.5">
+            <MailPlusIcon className="size-4" />
+            {isInviting ? "Sending…" : "Invite"}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function SettingsPage() {
   const { practiceId } = usePracticeContext();
 
@@ -164,7 +236,14 @@ export default function SettingsPage() {
         <h1 className="text-2xl font-semibold tracking-tight text-foreground">Settings</h1>
         <p className="mt-1 text-sm text-muted-foreground">Practice details, branding, and business hours.</p>
       </div>
-      {practiceId ? <PracticeDetailsForm practiceId={practiceId} /> : <Skeleton className="h-96 w-full max-w-2xl" />}
+      {practiceId ? (
+        <>
+          <PracticeDetailsForm practiceId={practiceId} />
+          <TeamCard practiceId={practiceId} />
+        </>
+      ) : (
+        <Skeleton className="h-96 w-full max-w-2xl" />
+      )}
     </div>
   );
 }

@@ -8,11 +8,13 @@ import { LoadingState } from "@/components/shared/state-views";
 import { StepContainer } from "../step-container";
 import { StepHeader } from "../step-header";
 import { BookingSummary } from "../booking-summary";
+import { useBookingPractice } from "../practice-context";
 import { useBookingSelection } from "../../hooks/use-booking-selection";
 import { useBookingStore } from "../../store/booking-store";
 import { submitBookingAction } from "../../actions/submit-booking-action";
 
 export function ReviewBookingStep() {
+  const { practiceId } = useBookingPractice();
   const { practitioner, treatment, isLoading } = useBookingSelection();
   const date = useBookingStore((s) => s.date);
   const time = useBookingStore((s) => s.time);
@@ -36,9 +38,14 @@ export function ReviewBookingStep() {
   if (!isComplete) return null;
 
   async function handleConfirm() {
+    if (!practiceId) {
+      toast.error("This practice could not be found.");
+      return;
+    }
     setIsSubmitting(true);
     try {
       const result = await submitBookingAction({
+        practiceId,
         practitionerId: practitioner!.id,
         treatmentId: treatment!.id,
         date: date!,

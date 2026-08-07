@@ -7,9 +7,10 @@ import { calculateEndTime } from "@/features/scheduling/utils/time-math";
 import { patientDetailsSchema } from "../validation/patient-details-schema";
 import { formatDateLong } from "../utils/format";
 import type { BookingReservation, PatientDetails } from "../types";
-import { getCurrentBookingPractice } from "./practice";
+import { getBookingPracticeById } from "./practice";
 
 export interface SubmitBookingInput {
+  practiceId: string;
   practitionerId: string;
   treatmentId: string;
   date: string; // yyyy-mm-dd
@@ -128,7 +129,7 @@ export async function submitBookingAction(
     return { ok: false, message: "Please check your details and try again." };
   }
 
-  const practice = await getCurrentBookingPractice();
+  const practice = await getBookingPracticeById(input.practiceId);
   if (!practice) {
     return { ok: false, message: "This practice could not be found." };
   }

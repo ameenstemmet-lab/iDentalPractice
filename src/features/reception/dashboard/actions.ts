@@ -1,6 +1,7 @@
 "use server";
 
 import { createAdminClient } from "../shared/supabase-admin";
+import { assertPracticeAccess } from "@/lib/auth/session";
 import { addDaysToISODate } from "@/features/scheduling/utils/time-math";
 import type { AppointmentStatus } from "@/features/reception/appointments/types";
 import type { DashboardStats, RecentActivityItem } from "./types";
@@ -10,6 +11,7 @@ function todayISODate(): string {
 }
 
 export async function getDashboardStats(practiceId: string): Promise<DashboardStats> {
+  await assertPracticeAccess(practiceId);
   const supabase = createAdminClient();
   const today = todayISODate();
   const weekAgo = addDaysToISODate(today, -7);
@@ -67,6 +69,7 @@ export async function getDashboardStats(practiceId: string): Promise<DashboardSt
 }
 
 export async function getRecentActivity(practiceId: string, limit = 8): Promise<RecentActivityItem[]> {
+  await assertPracticeAccess(practiceId);
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("appointments")

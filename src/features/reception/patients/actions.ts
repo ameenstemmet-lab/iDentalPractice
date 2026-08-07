@@ -1,6 +1,7 @@
 "use server";
 
 import { createAdminClient } from "../shared/supabase-admin";
+import { assertPracticeAccess, requireSession } from "@/lib/auth/session";
 import type { AppointmentStatus } from "@/features/reception/appointments/types";
 import type { Patient, PatientAppointmentSummary, PatientInput, PatientListItem } from "./types";
 
@@ -48,6 +49,7 @@ const DEFAULT_PAGE_SIZE = 20;
 
 export async function listPatients(params: ListPatientsParams): Promise<ListPatientsResult> {
   const { practiceId, search, page = 1, pageSize = DEFAULT_PAGE_SIZE } = params;
+  await assertPracticeAccess(practiceId);
   const supabase = createAdminClient();
 
   let query = supabase
@@ -112,17 +114,20 @@ async function getVisitInfo(practiceId: string, patientIds: string[]) {
 }
 
 export async function getPatient(patientId: string): Promise<Patient | null> {
+  const session = await requireSession();
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("patients")
     .select("id, practice_id, first_name, last_name, cellphone, email, date_of_birth, gender, notes, created_at")
     .eq("id", patientId)
+    .eq("practice_id", session.practiceId)
     .maybeSingle<PatientRow>();
   if (error) throw new Error(`getPatient failed: ${error.message}`);
   return data ? toPatient(data) : null;
 }
 
 export async function getPatientAppointments(patientId: string): Promise<PatientAppointmentSummary[]> {
+  const session = await requireSession();
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("appointments")
@@ -130,6 +135,7 @@ export async function getPatientAppointments(patientId: string): Promise<Patient
       "id, appointment_date, start_time, end_time, status, practitioners(first_name, last_name), treatment_types(treatment_name)"
     )
     .eq("patient_id", patientId)
+    .eq("practice_id", session.practiceId)
     .order("appointment_date", { ascending: false });
 
   if (error) throw new Error(`getPatientAppointments failed: ${error.message}`);
@@ -157,6 +163,7 @@ export async function getPatientAppointments(patientId: string): Promise<Patient
 }
 
 export async function createPatient(practiceId: string, input: PatientInput): Promise<Patient> {
+  await assertPracticeAccess(practiceId);
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("patients")
@@ -177,6 +184,7 @@ export async function createPatient(practiceId: string, input: PatientInput): Pr
 }
 
 export async function updatePatient(patientId: string, input: PatientInput): Promise<Patient> {
+  const session = await requireSession();
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("patients")
@@ -190,6 +198,7 @@ export async function updatePatient(patientId: string, input: PatientInput): Pro
       notes: input.notes || null,
     })
     .eq("id", patientId)
+    .eq("practice_id", session.practiceId)
     .select("id, practice_id, first_name, last_name, cellphone, email, date_of_birth, gender, notes, created_at")
     .single<PatientRow>();
   if (error) throw new Error(`updatePatient failed: ${error.message}`);
@@ -198,6 +207,7 @@ export async function updatePatient(patientId: string, input: PatientInput): Pro
 
 export async function searchPatients(practiceId: string, search: string): Promise<Patient[]> {
   if (!search.trim()) return [];
+  await assertPracticeAccess(practiceId);
   const supabase = createAdminClient();
   const escaped = search.replace(/[%,]/g, "");
   const { data, error } = await supabase

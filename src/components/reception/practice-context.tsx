@@ -6,12 +6,17 @@ export interface PracticeContextValue {
   practiceId: string | null;
   practiceName: string | null;
   timezone: string;
+  role: "staff" | "practitioner";
+  /** Set only when role === "practitioner" — used to scope their dashboard to their own diary. */
+  practitionerId: string | null;
 }
 
 const PracticeContext = React.createContext<PracticeContextValue>({
   practiceId: null,
   practiceName: null,
   timezone: "UTC",
+  role: "staff",
+  practitionerId: null,
 });
 
 /**

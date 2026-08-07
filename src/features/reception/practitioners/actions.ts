@@ -1,6 +1,7 @@
 "use server";
 
 import { createAdminClient } from "../shared/supabase-admin";
+import { assertPracticeAccess, requireSession } from "@/lib/auth/session";
 import type { Practitioner, PractitionerInput } from "./types";
 
 interface PractitionerRow {
@@ -37,6 +38,7 @@ const SELECT =
   "id, practice_id, first_name, last_name, title, profession, email, cellphone, colour_code, consultation_duration, active";
 
 export async function listPractitioners(practiceId: string, includeArchived = false): Promise<Practitioner[]> {
+  await assertPracticeAccess(practiceId);
   const supabase = createAdminClient();
   let query = supabase.from("practitioners").select(SELECT).eq("practice_id", practiceId).order("first_name");
   if (!includeArchived) query = query.eq("active", true);
@@ -46,13 +48,20 @@ export async function listPractitioners(practiceId: string, includeArchived = fa
 }
 
 export async function getPractitioner(practitionerId: string): Promise<Practitioner | null> {
+  const session = await requireSession();
   const supabase = createAdminClient();
-  const { data, error } = await supabase.from("practitioners").select(SELECT).eq("id", practitionerId).maybeSingle<PractitionerRow>();
+  const { data, error } = await supabase
+    .from("practitioners")
+    .select(SELECT)
+    .eq("id", practitionerId)
+    .eq("practice_id", session.practiceId)
+    .maybeSingle<PractitionerRow>();
   if (error) throw new Error(`getPractitioner failed: ${error.message}`);
   return data ? toPractitioner(data) : null;
 }
 
 export async function createPractitioner(practiceId: string, input: PractitionerInput): Promise<Practitioner> {
+  await assertPracticeAccess(practiceId);
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("practitioners")
@@ -74,6 +83,7 @@ export async function createPractitioner(practiceId: string, input: Practitioner
 }
 
 export async function updatePractitioner(practitionerId: string, input: PractitionerInput): Promise<Practitioner> {
+  const session = await requireSession();
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("practitioners")
@@ -88,6 +98,7 @@ export async function updatePractitioner(practitionerId: string, input: Practiti
       consultation_duration: input.consultationDuration,
     })
     .eq("id", practitionerId)
+    .eq("practice_id", session.practiceId)
     .select(SELECT)
     .single<PractitionerRow>();
   if (error) throw new Error(`updatePractitioner failed: ${error.message}`);
@@ -95,13 +106,19 @@ export async function updatePractitioner(practitionerId: string, input: Practiti
 }
 
 export async function setPractitionerArchived(practitionerId: string, archived: boolean): Promise<void> {
+  const session = await requireSession();
   const supabase = createAdminClient();
-  const { error } = await supabase.from("practitioners").update({ active: !archived }).eq("id", practitionerId);
+  const { error } = await supabase
+    .from("practitioners")
+    .update({ active: !archived })
+    .eq("id", practitionerId)
+    .eq("practice_id", session.practiceId);
   if (error) throw new Error(`setPractitionerArchived failed: ${error.message}`);
 }
 
 /** Distinct professions already in use at this practice — feeds the "Add practitioner" autocomplete, but never restricts input to only these. */
 export async function listProfessions(practiceId: string): Promise<string[]> {
+  await assertPracticeAccess(practiceId);
   const supabase = createAdminClient();
   const { data, error } = await supabase.from("practitioners").select("profession").eq("practice_id", practiceId);
   if (error) throw new Error(`listProfessions failed: ${error.message}`);
@@ -110,11 +127,13 @@ export async function listProfessions(practiceId: string): Promise<string[]> {
 }
 
 export async function listTreatmentIdsForPractitioner(practitionerId: string): Promise<string[]> {
+  const session = await requireSession();
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("practitioner_treatments")
     .select("treatment_id")
-    .eq("practitioner_id", practitionerId);
+    .eq("practitioner_id", practitionerId)
+    .eq("practice_id", session.practiceId);
   if (error) throw new Error(`listTreatmentIdsForPractitioner failed: ${error.message}`);
   return (data as Array<{ treatment_id: string }> | null ?? []).map((row) => row.treatment_id);
 }
@@ -125,12 +144,14 @@ export async function setPractitionerTreatments(
   practitionerId: string,
   treatmentIds: string[]
 ): Promise<void> {
+  await assertPracticeAccess(practiceId);
   const supabase = createAdminClient();
 
   const { error: deleteError } = await supabase
     .from("practitioner_treatments")
     .delete()
-    .eq("practitioner_id", practitionerId);
+    .eq("practitioner_id", practitionerId)
+    .eq("practice_id", practiceId);
   if (deleteError) throw new Error(`setPractitionerTreatments delete failed: ${deleteError.message}`);
 
   if (treatmentIds.length === 0) return;

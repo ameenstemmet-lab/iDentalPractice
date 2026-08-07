@@ -1,41 +1,31 @@
-import { createClient } from "@supabase/supabase-js";
+import { redirect } from "next/navigation";
 import { CheckCircle2Icon, XCircleIcon } from "lucide-react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ConnectionStatusCard } from "@/features/integrations/google-calendar/components/connection-status-card";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { getCurrentSession } from "@/lib/auth/session";
 
-export const metadata = { title: "Google Calendar — iDentalPractice" };
+export const metadata = { title: "Google Calendar — iPractice" };
 
 interface PracticeWithPractitioners {
   practiceId: string;
   practitioners: { id: string; name: string }[];
 }
 
-/**
- * TODO(auth): replace with the signed-in user's practice once a login
- * system exists. Until then this resolves the first practice in the
- * database — correct for a single-practice deployment, not for real
- * multi-tenant use, and deliberately not hidden behind a nicer name.
- */
-async function getPlaceholderPracticeData(): Promise<PracticeWithPractitioners | null> {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { persistSession: false } }
-  );
-  const { data: practice } = await supabase.from("practices").select("id").limit(1).maybeSingle<{ id: string }>();
-  if (!practice) return null;
+async function getPracticeData(practiceId: string): Promise<PracticeWithPractitioners> {
+  const supabase = createSupabaseAdminClient();
 
   const { data: practitioners } = await supabase
     .from("practitioners")
     .select("id, first_name, last_name, profession")
-    .eq("practice_id", practice.id)
+    .eq("practice_id", practiceId)
     .eq("active", true)
     .order("first_name")
     .returns<{ id: string; first_name: string; last_name: string; profession: string }[]>();
 
   return {
-    practiceId: practice.id,
+    practiceId,
     practitioners: (practitioners ?? []).map((p) => ({
       id: p.id,
       name: `${p.first_name} ${p.last_name} — ${p.profession}`,
@@ -49,7 +39,9 @@ export default async function GoogleCalendarSettingsPage({
   searchParams: Promise<{ gcal_connected?: string; gcal_error?: string }>;
 }) {
   const params = await searchParams;
-  const practiceData = await getPlaceholderPracticeData();
+  const session = await getCurrentSession();
+  if (!session) redirect("/login");
+  const practiceData = await getPracticeData(session.practiceId);
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
@@ -76,24 +68,18 @@ export default async function GoogleCalendarSettingsPage({
         </Alert>
       ) : null}
 
-      {!practiceData ? (
-        <p className="mt-6 text-sm text-muted-foreground">
-          No practice found yet — create one before connecting a calendar.
-        </p>
-      ) : (
-        <div className="mt-6 flex flex-col gap-6">
-          <ConnectionStatusCard practiceId={practiceData.practiceId} title="Practice-wide calendar" />
+      <div className="mt-6 flex flex-col gap-6">
+        <ConnectionStatusCard practiceId={practiceData.practiceId} title="Practice-wide calendar" />
 
-          {practiceData.practitioners.map((p) => (
-            <ConnectionStatusCard
-              key={p.id}
-              practiceId={practiceData.practiceId}
-              practitionerId={p.id}
-              title={p.name}
-            />
-          ))}
-        </div>
-      )}
+        {practiceData.practitioners.map((p) => (
+          <ConnectionStatusCard
+            key={p.id}
+            practiceId={practiceData.practiceId}
+            practitionerId={p.id}
+            title={p.name}
+          />
+        ))}
+      </div>
     </div>
   );
 }

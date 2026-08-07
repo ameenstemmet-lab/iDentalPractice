@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { BellIcon, LogOutIcon, SettingsIcon, UserIcon } from "lucide-react";
+import Link from "next/link";
+import { BellIcon, LogOutIcon, SettingsIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -18,10 +19,12 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { GlobalSearch } from "@/components/reception/global-search";
+import { logoutAction } from "@/features/auth/actions";
 
 interface NavbarProps extends React.ComponentProps<"header"> {
   title?: string;
   practiceName?: string;
+  userEmail?: string;
 }
 
 /**
@@ -29,7 +32,7 @@ interface NavbarProps extends React.ComponentProps<"header"> {
  * collapse trigger, current-practice label, page title slot, global
  * search, notifications, theme toggle, account menu.
  */
-export function Navbar({ title, practiceName, className, ...props }: NavbarProps) {
+export function Navbar({ title, practiceName, userEmail, className, ...props }: NavbarProps) {
   return (
     <header
       className={cn(
@@ -72,20 +75,18 @@ export function Navbar({ title, practiceName, className, ...props }: NavbarProps
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel className="font-normal">
-              <p className="text-sm font-medium">Practice Admin</p>
-              <p className="text-xs text-muted-foreground">admin@practice.example</p>
+              <p className="text-sm font-medium">{practiceName ?? "Practice"}</p>
+              <p className="truncate text-xs text-muted-foreground">{userEmail ?? ""}</p>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <UserIcon />
-              Profile
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <SettingsIcon />
-              Settings
+            <DropdownMenuItem asChild>
+              <Link href="/settings">
+                <SettingsIcon />
+                Settings
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive">
+            <DropdownMenuItem variant="destructive" onClick={() => logoutAction()}>
               <LogOutIcon />
               Sign out
             </DropdownMenuItem>

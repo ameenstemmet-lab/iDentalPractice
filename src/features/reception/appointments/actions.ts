@@ -1,6 +1,7 @@
 "use server";
 
 import { createAdminClient } from "../shared/supabase-admin";
+import { assertPracticeAccess, requireSession } from "@/lib/auth/session";
 import type {
   AppointmentListItem,
   AppointmentStatus,
@@ -63,11 +64,16 @@ export async function listAppointments(filters: ListAppointmentsFilters): Promis
     sortBy = "date_asc",
   } = filters;
 
+  const session = await assertPracticeAccess(practiceId);
+  // A practitioner-role session can only ever see their own appointments,
+  // regardless of what filter the client requests.
+  const effectivePractitionerId = session.role === "practitioner" ? session.practitionerId : practitionerId;
+
   const supabase = createAdminClient();
   let query = supabase.from("appointments").select(SELECT, { count: "exact" }).eq("practice_id", practiceId);
 
   if (status && status !== "all") query = query.eq("status", status);
-  if (practitionerId && practitionerId !== "all") query = query.eq("practitioner_id", practitionerId);
+  if (effectivePractitionerId && effectivePractitionerId !== "all") query = query.eq("practitioner_id", effectivePractitionerId);
   if (fromDate) query = query.gte("appointment_date", fromDate);
   if (toDate) query = query.lte("appointment_date", toDate);
 
@@ -95,8 +101,14 @@ export async function listAppointments(filters: ListAppointmentsFilters): Promis
 }
 
 export async function getAppointment(appointmentId: string): Promise<AppointmentListItem | null> {
+  const session = await requireSession();
   const supabase = createAdminClient();
-  const { data, error } = await supabase.from("appointments").select(SELECT).eq("id", appointmentId).maybeSingle<AppointmentRow>();
+  const { data, error } = await supabase
+    .from("appointments")
+    .select(SELECT)
+    .eq("id", appointmentId)
+    .eq("practice_id", session.practiceId)
+    .maybeSingle<AppointmentRow>();
   if (error) throw new Error(`getAppointment failed: ${error.message}`);
   return data ? toListItem(data) : null;
 }
@@ -117,9 +129,17 @@ async function syncToGoogleCalendar(kind: "update" | "cancel", appointmentId: st
 }
 
 export async function updateAppointmentStatus(appointmentId: string, status: AppointmentStatus): Promise<void> {
+  const session = await requireSession();
   const supabase = createAdminClient();
-  const { error } = await supabase.from("appointments").update({ status }).eq("id", appointmentId);
+  const { data, error } = await supabase
+    .from("appointments")
+    .update({ status })
+    .eq("id", appointmentId)
+    .eq("practice_id", session.practiceId)
+    .select("id")
+    .maybeSingle();
   if (error) throw new Error(`updateAppointmentStatus failed: ${error.message}`);
+  if (!data) throw new Error("Appointment not found.");
 
   if (status === "cancelled") await syncToGoogleCalendar("cancel", appointmentId);
   else await syncToGoogleCalendar("update", appointmentId);
@@ -133,11 +153,15 @@ export interface RescheduleInput {
 }
 
 export async function rescheduleAppointment(input: RescheduleInput): Promise<void> {
+  const session = await requireSession();
   const supabase = createAdminClient();
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("appointments")
     .update({ appointment_date: input.date, start_time: input.startTime, end_time: input.endTime })
-    .eq("id", input.appointmentId);
+    .eq("id", input.appointmentId)
+    .eq("practice_id", session.practiceId)
+    .select("id")
+    .maybeSingle();
 
   if (error) {
     if (error.message.includes("appointments_no_overlap")) {
@@ -145,6 +169,7 @@ export async function rescheduleAppointment(input: RescheduleInput): Promise<voi
     }
     throw new Error(`rescheduleAppointment failed: ${error.message}`);
   }
+  if (!data) throw new Error("Appointment not found.");
 
   await syncToGoogleCalendar("update", input.appointmentId);
 }

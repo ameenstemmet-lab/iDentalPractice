@@ -1,23 +1,13 @@
-import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
-import { BookingShell } from "@/features/booking/components/booking-shell";
-import { BookingPracticeProvider } from "@/features/booking/components/practice-context";
-import { getCurrentBookingPractice } from "@/features/booking/actions/practice";
+import { getFeaturedBookingPractice } from "@/features/booking/actions/practice";
 
-export const metadata: Metadata = {
-  title: "Reserve Your Visit — iDentalPractice",
-  description: "Book an appointment in a few simple steps.",
-};
-
-// Availability changes constantly — this page must never be statically cached.
+// Legacy URL from before multi-tenancy — there's no longer a single
+// canonical practice to serve here, so this keeps old bookmarks/links
+// working by forwarding to the current featured practice's slug URL.
 export const dynamic = "force-dynamic";
 
-export default async function BookingPage() {
-  const practice = await getCurrentBookingPractice();
-
-  return (
-    <BookingPracticeProvider value={{ practiceId: practice?.id ?? null, timezone: practice?.timezone ?? "UTC" }}>
-      <BookingShell />
-    </BookingPracticeProvider>
-  );
+export default async function LegacyBookingRedirectPage() {
+  const practice = await getFeaturedBookingPractice();
+  redirect(practice ? `/book/${practice.slug}` : "/");
 }

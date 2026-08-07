@@ -1,6 +1,7 @@
 "use server";
 
 import { createAdminClient } from "../shared/supabase-admin";
+import { assertPracticeAccess, requireSession } from "@/lib/auth/session";
 import type { BlockedPeriod, BlockedPeriodInput } from "./types";
 
 interface BlockedPeriodRow {
@@ -26,6 +27,7 @@ function toBlockedPeriod(row: BlockedPeriodRow): BlockedPeriod {
 }
 
 export async function listBlockedPeriods(practiceId: string): Promise<BlockedPeriod[]> {
+  await assertPracticeAccess(practiceId);
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("blocked_periods")
@@ -37,6 +39,7 @@ export async function listBlockedPeriods(practiceId: string): Promise<BlockedPer
 }
 
 export async function createBlockedPeriod(practiceId: string, input: BlockedPeriodInput): Promise<BlockedPeriod> {
+  await assertPracticeAccess(practiceId);
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("blocked_periods")
@@ -54,7 +57,12 @@ export async function createBlockedPeriod(practiceId: string, input: BlockedPeri
 }
 
 export async function deleteBlockedPeriod(blockedPeriodId: string): Promise<void> {
+  const session = await requireSession();
   const supabase = createAdminClient();
-  const { error } = await supabase.from("blocked_periods").delete().eq("id", blockedPeriodId);
+  const { error } = await supabase
+    .from("blocked_periods")
+    .delete()
+    .eq("id", blockedPeriodId)
+    .eq("practice_id", session.practiceId);
   if (error) throw new Error(`deleteBlockedPeriod failed: ${error.message}`);
 }

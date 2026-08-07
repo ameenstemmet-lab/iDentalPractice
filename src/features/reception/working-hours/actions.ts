@@ -1,6 +1,7 @@
 "use server";
 
 import { createAdminClient } from "../shared/supabase-admin";
+import { assertPracticeAccess, requireSession } from "@/lib/auth/session";
 import type { AddBreakInput, PractitionerBreak, SaveWorkingDayInput, WorkingDay } from "./types";
 
 interface WorkingHoursRow {
@@ -23,11 +24,13 @@ function toTimeString(pgTime: string | null): string | null {
 }
 
 export async function getWorkingHours(practitionerId: string): Promise<WorkingDay[]> {
+  const session = await requireSession();
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("practitioner_working_hours")
     .select("day_of_week, is_working, start_time, end_time")
-    .eq("practitioner_id", practitionerId);
+    .eq("practitioner_id", practitionerId)
+    .eq("practice_id", session.practiceId);
   if (error) throw new Error(`getWorkingHours failed: ${error.message}`);
 
   const byDay = new Map((data as WorkingHoursRow[] | null ?? []).map((r) => [r.day_of_week, r]));
@@ -43,6 +46,7 @@ export async function getWorkingHours(practitionerId: string): Promise<WorkingDa
 }
 
 export async function saveWorkingDay(input: SaveWorkingDayInput): Promise<void> {
+  await assertPracticeAccess(input.practiceId);
   const supabase = createAdminClient();
   const { error } = await supabase.from("practitioner_working_hours").upsert(
     {
@@ -59,11 +63,13 @@ export async function saveWorkingDay(input: SaveWorkingDayInput): Promise<void> 
 }
 
 export async function getBreaks(practitionerId: string): Promise<PractitionerBreak[]> {
+  const session = await requireSession();
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("practitioner_breaks")
     .select("id, day_of_week, start_time, end_time, description")
     .eq("practitioner_id", practitionerId)
+    .eq("practice_id", session.practiceId)
     .order("day_of_week");
   if (error) throw new Error(`getBreaks failed: ${error.message}`);
   return (data as BreakRow[] | null ?? []).map((row) => ({
@@ -76,6 +82,7 @@ export async function getBreaks(practitionerId: string): Promise<PractitionerBre
 }
 
 export async function addBreak(input: AddBreakInput): Promise<PractitionerBreak> {
+  await assertPracticeAccess(input.practiceId);
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("practitioner_breaks")
@@ -100,7 +107,12 @@ export async function addBreak(input: AddBreakInput): Promise<PractitionerBreak>
 }
 
 export async function deleteBreak(breakId: string): Promise<void> {
+  const session = await requireSession();
   const supabase = createAdminClient();
-  const { error } = await supabase.from("practitioner_breaks").delete().eq("id", breakId);
+  const { error } = await supabase
+    .from("practitioner_breaks")
+    .delete()
+    .eq("id", breakId)
+    .eq("practice_id", session.practiceId);
   if (error) throw new Error(`deleteBreak failed: ${error.message}`);
 }

@@ -4,40 +4,59 @@ import { revalidatePath } from "next/cache";
 
 import { createGoogleCalendarServices } from "../services/container";
 import type { CalendarConnection, CalendarListEntry } from "../types";
+import { requireSession } from "@/lib/auth/session";
 
 const SETTINGS_PATH = "/settings/integrations/google-calendar";
 
-// TODO(auth): every action below trusts its connectionId/practiceId
-// argument as-is. Once a login system exists, each must additionally
-// verify the calling user is a member of the connection's practice with
-// permission to manage integrations.
+/** Every action below verifies the caller's session before touching a connection they don't own. */
+async function assertOwnsPractice(practiceId: string): Promise<void> {
+  const session = await requireSession();
+  if (session.practiceId !== practiceId) {
+    throw new Error("You don't have permission to manage this practice's integrations.");
+  }
+}
+
+async function assertOwnsConnection(connectionId: string): Promise<CalendarConnection> {
+  const session = await requireSession();
+  const { repository } = createGoogleCalendarServices();
+  const connection = await repository.getConnection(connectionId);
+  if (!connection || connection.practiceId !== session.practiceId) {
+    throw new Error("You don't have permission to manage this calendar connection.");
+  }
+  return connection;
+}
 
 export async function getConnectionStatusAction(
   practiceId: string,
   practitionerId: string | null
 ): Promise<CalendarConnection | null> {
+  await assertOwnsPractice(practiceId);
   const { repository } = createGoogleCalendarServices();
   return repository.getConnectionForPractitioner(practiceId, practitionerId);
 }
 
 export async function listPracticeConnectionsAction(practiceId: string): Promise<CalendarConnection[]> {
+  await assertOwnsPractice(practiceId);
   const { repository } = createGoogleCalendarServices();
   return repository.listConnections(practiceId);
 }
 
 export async function disconnectCalendarAction(connectionId: string): Promise<void> {
+  await assertOwnsConnection(connectionId);
   const { oauthService } = createGoogleCalendarServices();
   await oauthService.disconnect(connectionId);
   revalidatePath(SETTINGS_PATH);
 }
 
 export async function listAvailableCalendarsAction(connectionId: string): Promise<CalendarListEntry[]> {
+  await assertOwnsConnection(connectionId);
   const { tokenRefreshService, calendarProvider } = createGoogleCalendarServices();
   const accessToken = await tokenRefreshService.getValidAccessToken(connectionId);
   return calendarProvider.listCalendars({ accessToken });
 }
 
 export async function selectCalendarAction(connectionId: string, calendarId: string): Promise<void> {
+  await assertOwnsConnection(connectionId);
   const { repository, tokenRefreshService, calendarProvider } = createGoogleCalendarServices();
   const accessToken = await tokenRefreshService.getValidAccessToken(connectionId);
   const calendars = await calendarProvider.listCalendars({ accessToken });
@@ -52,6 +71,7 @@ export async function selectCalendarAction(connectionId: string, calendarId: str
 }
 
 export async function toggleSyncEnabledAction(connectionId: string, syncEnabled: boolean): Promise<void> {
+  await assertOwnsConnection(connectionId);
   const { repository } = createGoogleCalendarServices();
   await repository.updateConnection(connectionId, { syncEnabled });
   revalidatePath(SETTINGS_PATH);
@@ -63,6 +83,7 @@ export interface TestConnectionResult {
 }
 
 export async function testConnectionAction(connectionId: string): Promise<TestConnectionResult> {
+  await assertOwnsConnection(connectionId);
   const { repository, tokenRefreshService, calendarProvider } = createGoogleCalendarServices();
 
   try {

@@ -7,14 +7,14 @@ import { Testimonials } from "@/components/marketing/testimonials";
 import { FaqSection } from "@/components/marketing/faq-section";
 import { ContactSection, MarketingFooter } from "@/components/marketing/marketing-footer";
 import { FloatingActions } from "@/components/marketing/floating-actions";
-import { getCurrentBookingPractice } from "@/features/booking/actions/practice";
+import { getFeaturedBookingPractice } from "@/features/booking/actions/practice";
 import { getPractitionersAction } from "@/features/booking/actions/catalog-actions";
 
 // Practitioner data changes as the practice adds/archives staff — never statically cached.
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const practice = await getCurrentBookingPractice();
+  const practice = await getFeaturedBookingPractice();
   const practitioners = practice ? await getPractitionersAction(practice.id) : [];
 
   return (

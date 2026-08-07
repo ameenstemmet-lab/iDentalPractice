@@ -1,6 +1,7 @@
 "use server";
 
 import { createAdminClient } from "../shared/supabase-admin";
+import { assertPracticeAccess } from "@/lib/auth/session";
 import type { PracticeSettings, PracticeSettingsInput } from "./types";
 
 interface PracticeRow {
@@ -37,6 +38,7 @@ function toSettings(row: PracticeRow): PracticeSettings {
 }
 
 export async function getPracticeSettings(practiceId: string): Promise<PracticeSettings | null> {
+  await assertPracticeAccess(practiceId);
   const supabase = createAdminClient();
   const { data, error } = await supabase.from("practices").select(SELECT).eq("id", practiceId).maybeSingle<PracticeRow>();
   if (error) throw new Error(`getPracticeSettings failed: ${error.message}`);
@@ -44,6 +46,7 @@ export async function getPracticeSettings(practiceId: string): Promise<PracticeS
 }
 
 export async function updatePracticeSettings(practiceId: string, input: PracticeSettingsInput): Promise<PracticeSettings> {
+  await assertPracticeAccess(practiceId);
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("practices")

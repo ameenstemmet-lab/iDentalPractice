@@ -22,7 +22,8 @@ const STATUS_OPTIONS: Array<{ value: AppointmentStatus | "all"; label: string }>
 ];
 
 export default function AppointmentsPage() {
-  const { practiceId } = usePracticeContext();
+  const { practiceId, role } = usePracticeContext();
+  const isStaff = role === "staff";
   const [search, setSearch] = React.useState("");
   const [status, setStatus] = React.useState<AppointmentStatus | "all">("all");
   const [practitionerId, setPractitionerId] = React.useState<string>("all");
@@ -82,19 +83,21 @@ export default function AppointmentsPage() {
           </SelectContent>
         </Select>
 
-        <Select value={practitionerId} onValueChange={setPractitionerId}>
-          <SelectTrigger className="w-full sm:w-48">
-            <SelectValue placeholder="All practitioners" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All practitioners</SelectItem>
-            {practitioners.data?.map((d) => (
-              <SelectItem key={d.id} value={d.id}>
-                {d.firstName} {d.lastName}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {isStaff ? (
+          <Select value={practitionerId} onValueChange={setPractitionerId}>
+            <SelectTrigger className="w-full sm:w-48">
+              <SelectValue placeholder="All practitioners" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All practitioners</SelectItem>
+              {practitioners.data?.map((d) => (
+                <SelectItem key={d.id} value={d.id}>
+                  {d.firstName} {d.lastName}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : null}
 
         <Select value={sortBy} onValueChange={(v) => setSortBy(v as "date_asc" | "date_desc")}>
           <SelectTrigger className="w-full sm:w-40">

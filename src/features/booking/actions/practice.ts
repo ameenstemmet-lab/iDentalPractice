@@ -8,22 +8,51 @@ export interface BookingPractice {
   timezone: string;
 }
 
-/**
- * TODO(auth): the public booking page has no way to know which practice
- * it's booking for without either a logged-in session or a practice
- * identifier in the URL (e.g. /book/[practiceSlug]) — neither exists yet.
- * This resolves the first practice in the database, correct only for a
- * single-practice deployment. Every booking action below takes this as
- * given rather than re-deriving it, so the eventual fix is localized here.
- */
-export async function getCurrentBookingPractice(): Promise<BookingPractice | null> {
+/** Resolves the practice a public /book/[practiceSlug] page belongs to — deliberately unauthenticated, patients never log in. */
+export async function getBookingPracticeBySlug(slug: string): Promise<BookingPractice | null> {
   const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase
     .from("practices")
     .select("id, practice_name, timezone")
-    .limit(1)
+    .eq("slug", slug)
     .maybeSingle<{ id: string; practice_name: string; timezone: string }>();
-  if (error) throw new Error(`getCurrentBookingPractice failed: ${error.message}`);
+  if (error) throw new Error(`getBookingPracticeBySlug failed: ${error.message}`);
   if (!data) return null;
   return { id: data.id, practiceName: data.practice_name, timezone: data.timezone };
+}
+
+/** Re-fetches practice details (timezone, name) once practiceId is already known — used by submitBookingAction. */
+export async function getBookingPracticeById(practiceId: string): Promise<BookingPractice | null> {
+  const supabase = createSupabaseAdminClient();
+  const { data, error } = await supabase
+    .from("practices")
+    .select("id, practice_name, timezone")
+    .eq("id", practiceId)
+    .maybeSingle<{ id: string; practice_name: string; timezone: string }>();
+  if (error) throw new Error(`getBookingPracticeById failed: ${error.message}`);
+  if (!data) return null;
+  return { id: data.id, practiceName: data.practice_name, timezone: data.timezone };
+}
+
+export interface FeaturedBookingPractice extends BookingPractice {
+  slug: string;
+}
+
+/**
+ * Used only by the platform's own marketing homepage and the legacy
+ * /booking redirect, both of which have no specific-tenant context to key
+ * off of — not a real multi-tenant practice-resolution point, so "the
+ * first practice" is an acceptable, deliberate choice here (unlike the
+ * old TODO(auth) placeholders it replaced elsewhere in the codebase).
+ */
+export async function getFeaturedBookingPractice(): Promise<FeaturedBookingPractice | null> {
+  const supabase = createSupabaseAdminClient();
+  const { data, error } = await supabase
+    .from("practices")
+    .select("id, practice_name, timezone, slug")
+    .limit(1)
+    .maybeSingle<{ id: string; practice_name: string; timezone: string; slug: string }>();
+  if (error) throw new Error(`getFeaturedBookingPractice failed: ${error.message}`);
+  if (!data) return null;
+  return { id: data.id, practiceName: data.practice_name, timezone: data.timezone, slug: data.slug };
 }
