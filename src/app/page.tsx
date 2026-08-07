@@ -1,37 +1,36 @@
-import Link from "next/link";
+import { MarketingNav } from "@/components/marketing/marketing-nav";
+import { Hero } from "@/components/marketing/hero";
+import { SpecialitiesGrid } from "@/components/marketing/specialities-grid";
+import { WhyChoose } from "@/components/marketing/why-choose";
+import { FeaturedDoctors } from "@/components/marketing/featured-doctors";
+import { Testimonials } from "@/components/marketing/testimonials";
+import { FaqSection } from "@/components/marketing/faq-section";
+import { ContactSection, MarketingFooter } from "@/components/marketing/marketing-footer";
+import { FloatingActions } from "@/components/marketing/floating-actions";
+import { getCurrentBookingPractice } from "@/features/booking/actions/practice";
+import { getPractitionersAction } from "@/features/booking/actions/catalog-actions";
 
-import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/layout/theme-toggle";
+// Practitioner data changes as the practice adds/archives staff — never statically cached.
+export const dynamic = "force-dynamic";
 
-export default function Home() {
+export default async function Home() {
+  const practice = await getCurrentBookingPractice();
+  const practitioners = practice ? await getPractitionersAction(practice.id) : [];
+
   return (
-    <div className="flex min-h-dvh flex-col bg-background">
-      <header className="flex h-14 shrink-0 items-center px-4 sm:px-6">
-        <span className="flex items-center gap-2 text-sm font-semibold tracking-tight text-foreground">
-          <span className="flex size-6 items-center justify-center rounded-md bg-primary text-xs font-semibold text-primary-foreground">
-            iD
-          </span>
-          iDentalPractice
-        </span>
-        <div className="ml-auto">
-          <ThemeToggle />
-        </div>
-      </header>
-
-      <main className="flex flex-1 flex-col items-center justify-center px-4 text-center">
-        <p className="text-xs font-medium tracking-wide text-primary uppercase">
-          Modern dental care
-        </p>
-        <h1 className="mt-3 max-w-xl text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
-          Booking your visit should feel this easy.
-        </h1>
-        <p className="mt-4 max-w-md text-base text-muted-foreground">
-          Choose your practitioner, treatment, and time in a few effortless steps.
-        </p>
-        <Button asChild size="lg" className="mt-8">
-          <Link href="/booking">Reserve Your Visit</Link>
-        </Button>
+    <div className="flex min-h-dvh flex-col bg-background pb-16 sm:pb-0">
+      <MarketingNav />
+      <main className="flex-1">
+        <Hero />
+        <SpecialitiesGrid />
+        <WhyChoose />
+        <FeaturedDoctors practitioners={practitioners} />
+        <Testimonials />
+        <FaqSection />
+        <ContactSection />
       </main>
+      <MarketingFooter />
+      <FloatingActions />
     </div>
   );
 }
