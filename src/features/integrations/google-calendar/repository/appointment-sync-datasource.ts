@@ -28,6 +28,7 @@ interface AppointmentJoinRow {
   patients: { first_name: string; last_name: string } | null;
   treatment_types: { treatment_name: string } | null;
   practices: { timezone: string } | null;
+  practitioners: { title: string | null; first_name: string; last_name: string } | null;
 }
 
 export class SupabaseAppointmentSyncDataSource implements AppointmentSyncDataSource {
@@ -37,7 +38,7 @@ export class SupabaseAppointmentSyncDataSource implements AppointmentSyncDataSou
     const { data, error } = await this.client
       .from("appointments")
       .select(
-        "id, practice_id, practitioner_id, appointment_date, start_time, end_time, notes, google_calendar_event_id, patients(first_name, last_name), treatment_types(treatment_name), practices(timezone)"
+        "id, practice_id, practitioner_id, appointment_date, start_time, end_time, notes, google_calendar_event_id, patients(first_name, last_name), treatment_types(treatment_name), practices(timezone), practitioners(title, first_name, last_name)"
       )
       .eq("id", appointmentId)
       .maybeSingle<AppointmentJoinRow>();
@@ -48,12 +49,21 @@ export class SupabaseAppointmentSyncDataSource implements AppointmentSyncDataSou
     const patientName = data.patients ? `${data.patients.first_name} ${data.patients.last_name}` : "Patient";
     const treatmentName = data.treatment_types?.treatment_name ?? "Appointment";
     const timezone = data.practices?.timezone ?? "UTC";
+    // Included even when the practitioner has their own dedicated calendar
+    // (harmless redundancy there) because it's essential when several
+    // practitioners share one connected calendar — otherwise two events at
+    // the same time are indistinguishable in Google Calendar's UI.
+    const practitionerName = data.practitioners
+      ? `${data.practitioners.title ? `${data.practitioners.title} ` : ""}${data.practitioners.first_name} ${data.practitioners.last_name}`
+      : null;
 
     return {
       appointmentId: data.id,
       practiceId: data.practice_id,
       practitionerId: data.practitioner_id,
-      summary: `${treatmentName} — ${patientName}`,
+      summary: practitionerName
+        ? `${treatmentName} — ${patientName} (${practitionerName})`
+        : `${treatmentName} — ${patientName}`,
       description: data.notes ?? undefined,
       // appointment_date/start_time/end_time are practice-local wall-clock
       // values with no timezone attached — fromZonedTime interprets them
