@@ -5,6 +5,7 @@ import { AppSidebar } from "@/components/layout/app-sidebar";
 import { Navbar } from "@/components/layout/navbar";
 import { PracticeProvider } from "@/components/reception/practice-context";
 import { getCurrentPractice } from "@/features/reception/shared/practice-context";
+import { AssistantPanel } from "@/features/assistant/components/assistant-panel";
 
 // This shell reads live practice data on every request (and every page
 // beneath it reads live appointments/patients/etc via React Query) — none
@@ -37,6 +38,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <main className="flex flex-1 flex-col p-4 sm:p-6">{children}</main>
         </SidebarInset>
       </SidebarProvider>
+      <AssistantPanel />
     </PracticeProvider>
   );
 }
