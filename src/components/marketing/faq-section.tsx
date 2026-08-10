@@ -1,5 +1,7 @@
 import { PlusIcon } from "lucide-react";
 
+import { Reveal, RevealGroup, RevealItem } from "./motion";
+
 const FAQS = [
   {
     question: "What does it cost?",
@@ -37,24 +39,26 @@ export function FaqSection() {
   return (
     <section id="faq" className="bg-surface py-20 sm:py-28">
       <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-        <div className="text-center">
+        <Reveal className="text-center">
           <p className="text-xs font-semibold tracking-wide text-gold-foreground uppercase">Before you sign up</p>
           <h2 className="mt-2 font-heading text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
             Questions practice owners actually ask
           </h2>
-        </div>
+        </Reveal>
 
-        <div className="mt-12 flex flex-col divide-y divide-border rounded-2xl border border-border bg-card">
+        <RevealGroup className="mt-12 flex flex-col divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
           {FAQS.map((faq) => (
-            <details key={faq.question} className="group px-6 py-5 first:rounded-t-2xl last:rounded-b-2xl">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-medium text-foreground marker:content-none">
-                {faq.question}
-                <PlusIcon className="size-4 shrink-0 text-muted-foreground transition-transform duration-base group-open:rotate-45" />
-              </summary>
-              <p className="mt-3 text-sm text-muted-foreground">{faq.answer}</p>
-            </details>
+            <RevealItem key={faq.question}>
+              <details className="group px-6 py-5">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-medium text-foreground marker:content-none">
+                  {faq.question}
+                  <PlusIcon className="size-4 shrink-0 text-primary transition-transform duration-base group-open:rotate-45" />
+                </summary>
+                <p className="mt-3 text-sm text-muted-foreground">{faq.answer}</p>
+              </details>
+            </RevealItem>
           ))}
-        </div>
+        </RevealGroup>
       </div>
     </section>
   );

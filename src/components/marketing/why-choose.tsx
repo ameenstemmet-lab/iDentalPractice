@@ -1,7 +1,11 @@
+"use client";
+
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { CalendarSyncIcon, CheckIcon, ShieldCheckIcon, StethoscopeIcon, UserCheckIcon, ZapIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Reveal, RevealGroup, RevealItem } from "./motion";
 
 const REASONS = [
   { icon: StethoscopeIcon, title: "Built for any specialty", description: "Dentist, GP, physio, psychiatrist — add whoever you employ, no fixed list." },
@@ -20,16 +24,16 @@ export function WhyChoose() {
   return (
     <section id="about" className="py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 overflow-hidden rounded-3xl bg-primary text-primary-foreground lg:grid-cols-2">
+        <Reveal className="grid grid-cols-1 overflow-hidden rounded-3xl bg-primary text-primary-foreground shadow-[0_40px_80px_-20px_color-mix(in_oklch,var(--primary)_45%,transparent)] ring-1 ring-gold/15 lg:grid-cols-2">
           <div className="flex flex-col justify-center gap-6 px-6 py-14 sm:px-10 lg:px-14">
             <p className="text-xs font-semibold tracking-wide text-gold uppercase">Why practices switch</p>
             <h2 className="font-heading text-3xl leading-tight font-semibold tracking-tight sm:text-4xl">
               Built for how a real multi-specialty practice actually runs.
             </h2>
 
-            <div className="mt-2 grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <RevealGroup className="mt-2 grid grid-cols-1 gap-5 sm:grid-cols-2">
               {REASONS.map(({ icon: Icon, title, description }) => (
-                <div key={title} className="flex items-start gap-3">
+                <RevealItem key={title} className="flex items-start gap-3">
                   <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg bg-white/10">
                     <Icon className="size-4.5" />
                   </span>
@@ -37,14 +41,18 @@ export function WhyChoose() {
                     <p className="text-sm font-semibold">{title}</p>
                     <p className="mt-0.5 text-sm text-primary-foreground/70">{description}</p>
                   </div>
-                </div>
+                </RevealItem>
               ))}
-            </div>
+            </RevealGroup>
           </div>
 
           <div className="relative flex flex-col justify-center gap-6 bg-[color-mix(in_oklch,var(--primary)_85%,black)] px-6 py-14 sm:px-10 lg:px-14">
             <div aria-hidden className="pointer-events-none absolute inset-0 opacity-40">
-              <div className="absolute top-8 right-8 size-40 rounded-full bg-gold/20 blur-2xl" />
+              <motion.div
+                animate={{ scale: [1, 1.15, 1], opacity: [0.4, 0.6, 0.4] }}
+                transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute top-8 right-8 size-40 rounded-full bg-gold/20 blur-2xl"
+              />
             </div>
 
             <div className="relative rounded-2xl bg-background p-6 text-foreground shadow-xl">
@@ -75,7 +83,7 @@ export function WhyChoose() {
               </Button>
             </div>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );

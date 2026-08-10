@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRightIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Reveal, RevealGroup, RevealItem } from "./motion";
 
 const STEPS = [
   {
@@ -25,7 +26,7 @@ export function HowItWorks() {
   return (
     <section id="how-it-works" className="py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
+        <Reveal className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
           <div>
             <p className="text-xs font-semibold tracking-wide text-gold-foreground uppercase">
               From signup to your first booking
@@ -40,20 +41,20 @@ export function HowItWorks() {
               <ArrowRightIcon className="size-4" />
             </Link>
           </Button>
-        </div>
+        </Reveal>
 
-        <div className="relative mt-14 grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-8">
-          <div aria-hidden className="absolute top-6 right-0 left-0 hidden h-px bg-border md:block" />
+        <RevealGroup className="relative mt-14 grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-8">
+          <div aria-hidden className="absolute top-6 right-0 left-0 hidden h-px bg-gradient-to-r from-border via-gold/50 to-border md:block" />
           {STEPS.map((step) => (
-            <div key={step.number} className="relative flex flex-col gap-3">
-              <span className="flex size-12 items-center justify-center rounded-full border border-border bg-background font-heading text-sm font-semibold text-primary">
+            <RevealItem key={step.number} className="relative flex flex-col gap-3">
+              <span className="flex size-12 items-center justify-center rounded-full border border-gold/30 bg-background font-heading text-sm font-semibold text-primary shadow-sm">
                 {step.number}
               </span>
               <h3 className="font-heading text-lg font-semibold text-foreground">{step.title}</h3>
               <p className="text-sm text-muted-foreground">{step.body}</p>
-            </div>
+            </RevealItem>
           ))}
-        </div>
+        </RevealGroup>
       </div>
     </section>
   );

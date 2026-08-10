@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRightIcon, GraduationCapIcon } from "lucide-react";
 
 import type { Practitioner } from "@/features/booking/types";
+import { Reveal, RevealGroup, RevealItem } from "./motion";
 
 export function FeaturedDoctors({ practitioners }: { practitioners: Practitioner[] }) {
   if (practitioners.length === 0) return null;
@@ -9,7 +10,7 @@ export function FeaturedDoctors({ practitioners }: { practitioners: Practitioner
   return (
     <section id="doctors" className="bg-surface py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="max-w-xl">
+        <Reveal className="max-w-xl">
           <p className="text-xs font-semibold tracking-wide text-gold-foreground uppercase">
             Not a mockup — a real practice
           </p>
@@ -24,17 +25,17 @@ export function FeaturedDoctors({ practitioners }: { practitioners: Practitioner
             </Link>
             .
           </p>
-        </div>
+        </Reveal>
 
-        <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <RevealGroup className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {practitioners.map((p) => {
             const initials = `${p.firstName[0]}${p.lastName[0]}`.toUpperCase();
             return (
-              <div
+              <RevealItem
                 key={p.id}
-                className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-card p-6 text-center shadow-xs"
+                className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-card p-6 text-center shadow-xs transition-all duration-base hover:-translate-y-1 hover:shadow-lg"
               >
-                <span className="flex size-16 items-center justify-center rounded-full bg-primary/10 text-lg font-semibold text-primary">
+                <span className="flex size-16 items-center justify-center rounded-full bg-primary/10 text-lg font-semibold text-primary ring-4 ring-gold/10">
                   {initials}
                 </span>
                 <div>
@@ -50,10 +51,10 @@ export function FeaturedDoctors({ practitioners }: { practitioners: Practitioner
                     {p.qualification}
                   </p>
                 ) : null}
-              </div>
+              </RevealItem>
             );
           })}
-        </div>
+        </RevealGroup>
 
         <Link
           href="/book/stemmet-dental"

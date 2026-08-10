@@ -1,3 +1,5 @@
+import { Reveal, RevealGroup, RevealItem } from "./motion";
+
 interface ExampleTestimonial {
   quote: string;
   author: string;
@@ -28,28 +30,31 @@ export function Testimonials() {
   return (
     <section className="py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="max-w-xl">
+        <Reveal className="max-w-xl">
           <p className="text-xs font-semibold tracking-wide text-gold-foreground uppercase">
             From practices already on iPractice
           </p>
           <h2 className="mt-2 font-heading text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
             What changes in the first week
           </h2>
-        </div>
+        </Reveal>
 
-        <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-3">
+        <RevealGroup className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-3">
           {EXAMPLE_TESTIMONIALS.map((t) => (
-            <figure
+            <RevealItem
               key={t.quote}
-              className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-6 shadow-xs"
+              className="relative flex flex-col gap-4 overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-xs"
             >
-              <blockquote className="text-sm text-foreground">&ldquo;{t.quote}&rdquo;</blockquote>
+              <span aria-hidden className="absolute -top-3 -left-1 font-heading text-6xl text-gold/15">
+                &ldquo;
+              </span>
+              <blockquote className="relative text-sm text-foreground">&ldquo;{t.quote}&rdquo;</blockquote>
               <figcaption className="mt-auto text-xs text-muted-foreground">
                 <span className="font-medium text-foreground">{t.author}</span> — {t.role}
               </figcaption>
-            </figure>
+            </RevealItem>
           ))}
-        </div>
+        </RevealGroup>
 
         <p className="mt-8 text-xs text-muted-foreground">
           Example quotes shown for layout purposes — not real customer feedback yet.
