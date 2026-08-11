@@ -49,7 +49,6 @@ export function AssistantPanel() {
   const [messages, setMessages] = React.useState<AssistantMessage[]>([]);
   const [input, setInput] = React.useState("");
   const [pending, setPending] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
   const scrollAnchorRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
@@ -64,13 +63,15 @@ export function AssistantPanel() {
     setMessages(nextHistory);
     setInput("");
     setPending(true);
-    setError(null);
 
     try {
       const reply = await askAssistant(practiceId, nextHistory);
       setMessages((prev) => [...prev, reply]);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong asking the assistant.");
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: "Something went wrong asking that — try again in a moment." },
+      ]);
     } finally {
       setPending(false);
     }
@@ -122,7 +123,6 @@ export function AssistantPanel() {
                 </div>
               </div>
             )}
-            {error && <p className="text-xs text-destructive">{error}</p>}
             <div ref={scrollAnchorRef} />
           </div>
         </ScrollArea>

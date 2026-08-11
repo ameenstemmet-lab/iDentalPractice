@@ -23,7 +23,19 @@ const MAX_TOOL_ROUNDS = 4;
 
 export async function askAssistant(practiceId: string, history: AssistantMessage[]): Promise<AssistantMessage> {
   const session = await assertPracticeAccess(practiceId);
-  const client = getAnthropicClient();
+
+  // Returned as a normal reply rather than thrown: a thrown Error's message
+  // gets redacted by Next.js outside dev mode, so "not configured yet"
+  // would otherwise show up as an opaque generic failure in production.
+  let client: Anthropic;
+  try {
+    client = getAnthropicClient();
+  } catch (err) {
+    return {
+      role: "assistant",
+      content: err instanceof Error ? err.message : "The AI assistant isn't configured yet.",
+    };
+  }
 
   const messages: Anthropic.MessageParam[] = history.map((m) => ({ role: m.role, content: m.content }));
 
