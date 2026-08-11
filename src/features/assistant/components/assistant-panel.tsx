@@ -104,8 +104,17 @@ export function AssistantPanel() {
   const scrollAnchorRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
-    scrollAnchorRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [messages, pending]);
+    // Radix ScrollArea keeps the actual scrollable element inside its own
+    // Viewport wrapper — scrollIntoView() on a plain descendant doesn't
+    // reliably reach it (especially while the Sheet's own open/slide
+    // animation is still running), so scroll that element directly instead.
+    const raf = requestAnimationFrame(() => {
+      const viewport = scrollAnchorRef.current?.closest<HTMLElement>('[data-slot="scroll-area-viewport"]');
+      if (viewport) viewport.scrollTop = viewport.scrollHeight;
+      else scrollAnchorRef.current?.scrollIntoView({ block: "end" });
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [messages, pending, open]);
 
   async function send(text: string) {
     const question = text.trim();
