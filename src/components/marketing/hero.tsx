@@ -116,9 +116,29 @@ function CalendarMockup() {
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden bg-surface">
+    <section className="relative z-0 overflow-hidden bg-surface">
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_120%_80%_at_100%_-10%,color-mix(in_oklch,var(--primary)_26%,transparent),transparent)]" />
+        {/* Fine dot-grid across the whole hero, vignetted at the edges — the structured layer that keeps a gradient wash from reading as flat. */}
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle, color-mix(in oklch, var(--primary) 20%, transparent) 1.4px, transparent 1.4px)",
+            backgroundSize: "26px 26px",
+            maskImage: "radial-gradient(ellipse 95% 90% at 50% 35%, black 0%, transparent 90%)",
+            WebkitMaskImage: "radial-gradient(ellipse 95% 90% at 50% 35%, black 0%, transparent 90%)",
+          }}
+        />
+        {/* Fine film-grain texture — the tactile, "designed" quality flat CSS gradients alone don't have. multiply (not overlay) so it reads against a near-white background too. */}
+        <div
+          className="absolute inset-0 opacity-[0.05] mix-blend-multiply"
+          style={{
+            backgroundImage:
+              "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+            backgroundSize: "220px 220px",
+          }}
+        />
         <motion.div
           animate={{ x: [0, 30, 0], y: [0, -20, 0] }}
           transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
