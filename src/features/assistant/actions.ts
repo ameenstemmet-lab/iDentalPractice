@@ -38,7 +38,11 @@ function buildSystemPrompt(): string {
 
 // Bounds how many tool-call round-trips one reply can take before we give up
 // and return something rather than looping indefinitely on a confused chain.
-const MAX_TOOL_ROUNDS = 4;
+// Booking a new appointment can take several sequential tool calls
+// (search_patients, then list_practitioners, then list_treatments, then
+// propose_appointment) before the model has anything to reply with — leave
+// enough headroom that the loop doesn't exit before a final text reply.
+const MAX_TOOL_ROUNDS = 8;
 
 async function getPracticeTimezone(practiceId: string): Promise<string> {
   const supabase = createAdminClient();

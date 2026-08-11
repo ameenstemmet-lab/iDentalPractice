@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { BookingShell } from "@/features/booking/components/booking-shell";
 import { BookingPracticeProvider } from "@/features/booking/components/practice-context";
 import { getBookingPracticeBySlug } from "@/features/booking/actions/practice";
+import { BookingAssistantPanel } from "@/features/booking-assistant/components/booking-assistant-panel";
 
 // Availability changes constantly — this page must never be statically cached.
 export const dynamic = "force-dynamic";
@@ -29,6 +30,7 @@ export default async function BookingBySlugPage({ params }: { params: Promise<{ 
   return (
     <BookingPracticeProvider value={{ practiceId: practice.id, timezone: practice.timezone }}>
       <BookingShell />
+      <BookingAssistantPanel practiceId={practice.id} />
     </BookingPracticeProvider>
   );
 }
