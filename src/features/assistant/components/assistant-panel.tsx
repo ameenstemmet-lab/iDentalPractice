@@ -16,8 +16,9 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { usePracticeContext } from "@/components/reception/practice-context";
-import { askAssistant } from "../actions";
-import type { AssistantMessage } from "../types";
+import { formatCurrency } from "@/features/booking/utils/format";
+import { askAssistant, confirmAppointmentProposal } from "../actions";
+import type { AppointmentProposal, AssistantMessage } from "../types";
 
 const SUGGESTIONS = [
   "What's on today?",
@@ -25,8 +26,11 @@ const SUGGESTIONS = [
   "Who do we have appointments with tomorrow?",
 ];
 
+type ProposalStatus = "idle" | "confirming" | "confirmed" | "cancelled" | "error";
+
 function MessageBubble({ message }: { message: AssistantMessage }) {
   const isUser = message.role === "user";
+  if (!message.content) return null;
   return (
     <div className={cn("flex", isUser ? "justify-end" : "justify-start")}>
       <div
@@ -43,10 +47,58 @@ function MessageBubble({ message }: { message: AssistantMessage }) {
   );
 }
 
+function ProposalCard({
+  proposal,
+  status,
+  onConfirm,
+  onCancel,
+}: {
+  proposal: AppointmentProposal;
+  status: ProposalStatus;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <div className="flex justify-start">
+      <div className="max-w-[90%] rounded-2xl rounded-bl-sm border border-gold/30 bg-card p-3.5 text-sm text-foreground">
+        <p className="text-[10px] font-semibold tracking-wide text-gold-foreground uppercase">Proposed booking</p>
+        <div className="mt-1.5 flex flex-col gap-0.5">
+          <p className="font-medium">{proposal.patientLabel}</p>
+          <p className="text-muted-foreground">
+            {proposal.treatmentName} with {proposal.practitionerName}
+          </p>
+          <p className="text-muted-foreground">
+            {proposal.dateLabel} · {proposal.startTime}–{proposal.endTime}
+          </p>
+          {proposal.treatmentPrice > 0 && (
+            <p className="text-muted-foreground">{formatCurrency(proposal.treatmentPrice)}</p>
+          )}
+        </div>
+
+        {status === "idle" && (
+          <div className="mt-3 flex gap-2">
+            <Button size="sm" className="flex-1" onClick={onConfirm}>
+              Confirm booking
+            </Button>
+            <Button size="sm" variant="outline" className="flex-1" onClick={onCancel}>
+              Cancel
+            </Button>
+          </div>
+        )}
+        {status === "confirming" && <p className="mt-3 text-xs text-muted-foreground">Booking…</p>}
+        {status === "confirmed" && <p className="mt-3 text-xs font-medium text-success">Booked</p>}
+        {status === "cancelled" && <p className="mt-3 text-xs text-muted-foreground">Cancelled — nothing was booked.</p>}
+        {status === "error" && <p className="mt-3 text-xs text-destructive">Couldn&apos;t book — see reply below.</p>}
+      </div>
+    </div>
+  );
+}
+
 export function AssistantPanel() {
   const { practiceId } = usePracticeContext();
   const [open, setOpen] = React.useState(false);
   const [messages, setMessages] = React.useState<AssistantMessage[]>([]);
+  const [proposalStatus, setProposalStatus] = React.useState<Record<number, ProposalStatus>>({});
   const [input, setInput] = React.useState("");
   const [pending, setPending] = React.useState(false);
   const scrollAnchorRef = React.useRef<HTMLDivElement>(null);
@@ -75,6 +127,38 @@ export function AssistantPanel() {
     } finally {
       setPending(false);
     }
+  }
+
+  async function handleConfirmProposal(index: number, proposal: AppointmentProposal) {
+    if (!practiceId) return;
+    setProposalStatus((prev) => ({ ...prev, [index]: "confirming" }));
+
+    try {
+      const result = await confirmAppointmentProposal(practiceId, proposal);
+      if (result.ok) {
+        setProposalStatus((prev) => ({ ...prev, [index]: "confirmed" }));
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: `Booked — ${proposal.patientLabel} with ${proposal.practitionerName}, ${proposal.dateLabel} at ${proposal.startTime}.`,
+          },
+        ]);
+      } else {
+        setProposalStatus((prev) => ({ ...prev, [index]: "error" }));
+        setMessages((prev) => [...prev, { role: "assistant", content: result.message }]);
+      }
+    } catch {
+      setProposalStatus((prev) => ({ ...prev, [index]: "error" }));
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: "Something went wrong confirming that booking — try again." },
+      ]);
+    }
+  }
+
+  function handleCancelProposal(index: number) {
+    setProposalStatus((prev) => ({ ...prev, [index]: "cancelled" }));
   }
 
   return (
@@ -114,7 +198,19 @@ export function AssistantPanel() {
                 ))}
               </div>
             ) : (
-              messages.map((message, i) => <MessageBubble key={i} message={message} />)
+              messages.map((message, i) => (
+                <React.Fragment key={i}>
+                  <MessageBubble message={message} />
+                  {message.proposal && (
+                    <ProposalCard
+                      proposal={message.proposal}
+                      status={proposalStatus[i] ?? "idle"}
+                      onConfirm={() => handleConfirmProposal(i, message.proposal!)}
+                      onCancel={() => handleCancelProposal(i)}
+                    />
+                  )}
+                </React.Fragment>
+              ))
             )}
             {pending && (
               <div className="flex justify-start">

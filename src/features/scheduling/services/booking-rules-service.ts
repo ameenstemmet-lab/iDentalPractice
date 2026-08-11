@@ -14,7 +14,7 @@ export interface BookingRequest {
   excludeAppointmentId?: string;
 }
 
-export type BookingRejectionReason = SlotUnavailableReason | "invalid_duration";
+export type BookingRejectionReason = SlotUnavailableReason | "invalid_duration" | "invalid_time_range";
 
 export interface BookingValidationResult {
   valid: boolean;
@@ -24,6 +24,7 @@ export interface BookingValidationResult {
 
 const REJECTION_MESSAGES: Record<BookingRejectionReason, string> = {
   invalid_duration: "Appointment duration must be a positive number of minutes.",
+  invalid_time_range: "That appointment would run past midnight — pick an earlier start time.",
   past: "This time has already passed.",
   outside_working_hours: "This time is outside the practitioner's working hours.",
   break: "This time falls during the practitioner's break.",
@@ -51,6 +52,10 @@ export class BookingRulesService {
     }
 
     const startMinutes = timeStringToMinutes(request.startTime);
+    if (startMinutes + request.durationMinutes > 24 * 60) {
+      return { valid: false, reason: "invalid_time_range", message: REJECTION_MESSAGES.invalid_time_range };
+    }
+
     const interval = windowToInterval(
       { startMinutes, endMinutes: startMinutes + request.durationMinutes },
       request.date,
