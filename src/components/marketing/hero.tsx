@@ -116,19 +116,18 @@ function CalendarMockup() {
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden">
+    <section className="relative overflow-hidden bg-surface">
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_120%_80%_at_100%_-10%,color-mix(in_oklch,var(--primary)_14%,transparent),transparent)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,color-mix(in_oklch,var(--surface)_60%,transparent)_0%,transparent_45%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_120%_80%_at_100%_-10%,color-mix(in_oklch,var(--primary)_26%,transparent),transparent)]" />
         <motion.div
           animate={{ x: [0, 30, 0], y: [0, -20, 0] }}
           transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-1/3 right-[-15%] size-[30rem] rounded-full bg-[color-mix(in_oklch,var(--gold)_26%,transparent)] blur-3xl"
+          className="absolute top-10 right-[-8%] size-[32rem] rounded-full bg-[color-mix(in_oklch,var(--gold)_42%,transparent)] blur-3xl"
         />
         <motion.div
           animate={{ x: [0, -20, 0], y: [0, 15, 0] }}
           transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -top-20 left-[-10%] size-[22rem] rounded-full bg-[color-mix(in_oklch,var(--primary)_16%,transparent)] blur-3xl"
+          className="absolute -top-24 left-[-8%] size-[26rem] rounded-full bg-[color-mix(in_oklch,var(--primary)_30%,transparent)] blur-3xl"
         />
       </div>
 
